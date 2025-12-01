@@ -1,0 +1,633 @@
+{
+  "name": "Capture Client - AI Employee System",
+  "version": "1.0.0",
+  "description": "Complete AI Employee system for marketing agencies featuring voice agents, SMS automation, and multi-touch workflows for lead generation and client management",
+  "author": "Capture Client",
+  "created_date": "2025-12-01",
+  "ghl_version": "2.0",
+  "category": "marketing-agency",
+
+  "business_info": {
+    "business_name": "Capture Client",
+    "business_type": "Marketing Agency",
+    "services": ["AI Voice Agents", "Lead Generation", "CRM Solutions"],
+    "location": "Knoxville, TN",
+    "phone": "(865) 346-3339",
+    "email": "info@captureclient.net",
+    "website": "https://capture-client-site.vercel.app/",
+    "hours": "Monday-Friday, 9am-6pm EST",
+    "timezone": "America/New_York"
+  },
+
+  "components": {
+    "voice_agents": [
+      {
+        "id": "va_receptionist",
+        "name": "Receptionist Agent",
+        "purpose": "Main inbound call handler",
+        "description": "Professional AI receptionist that handles incoming calls, routes inquiries, and captures lead information",
+        "triggers": ["Inbound call to main business number"],
+        "capabilities": [
+          "Greet callers professionally",
+          "Answer common questions",
+          "Capture lead information",
+          "Route to appropriate team member",
+          "Schedule callbacks",
+          "Handle basic FAQs"
+        ],
+        "integrations": ["GHL Phone System", "Contact Records", "Calendars"]
+      },
+      {
+        "id": "va_lead_qualifier",
+        "name": "Lead Qualifier Agent",
+        "purpose": "Discovery and qualification",
+        "description": "Conducts discovery calls to qualify leads based on budget, timeline, and service fit",
+        "triggers": ["Warm lead callback", "Discovery call scheduled"],
+        "capabilities": [
+          "Ask qualification questions",
+          "Assess budget and timeline",
+          "Determine service fit",
+          "Score leads",
+          "Route qualified leads",
+          "Schedule demo calls"
+        ],
+        "integrations": ["GHL Contacts", "Custom Fields", "Lead Scoring"]
+      },
+      {
+        "id": "va_demo_booker",
+        "name": "Demo Booker Agent",
+        "purpose": "Appointment scheduling",
+        "description": "Schedules demo appointments, confirms availability, and sends calendar invites",
+        "triggers": ["Qualified lead ready for demo", "Demo request form submission"],
+        "capabilities": [
+          "Check calendar availability",
+          "Schedule appointments",
+          "Send calendar invites",
+          "Confirm attendee details",
+          "Handle rescheduling",
+          "Send reminders"
+        ],
+        "integrations": ["GHL Calendar", "Email Automation", "SMS Reminders"]
+      },
+      {
+        "id": "va_after_hours",
+        "name": "After Hours Agent",
+        "purpose": "Message taking outside business hours",
+        "description": "Handles calls outside business hours, takes messages, and schedules callbacks",
+        "triggers": ["Inbound call outside business hours"],
+        "capabilities": [
+          "Inform caller of business hours",
+          "Take detailed messages",
+          "Capture caller information",
+          "Schedule next-day callback",
+          "Handle urgent requests",
+          "Route to on-call if needed"
+        ],
+        "integrations": ["GHL Phone System", "Task Management", "SMS Notifications"]
+      }
+    ],
+
+    "sms_agents": [
+      {
+        "id": "sms_receptionist",
+        "name": "SMS Receptionist Agent",
+        "purpose": "Text inquiry handling",
+        "description": "Responds to incoming text messages, answers questions, and captures lead information",
+        "triggers": ["Inbound SMS to business number"],
+        "capabilities": [
+          "Respond to text inquiries",
+          "Answer common questions",
+          "Capture lead details",
+          "Provide business information",
+          "Schedule callbacks",
+          "Send resource links"
+        ],
+        "integrations": ["GHL Messaging", "Contact Records", "Knowledge Base"]
+      },
+      {
+        "id": "sms_lead_nurture",
+        "name": "Lead Nurture Agent",
+        "purpose": "Follow-up sequences",
+        "description": "Automated follow-up sequences to nurture leads through the sales funnel",
+        "triggers": ["New lead captured", "Lead stage change", "Scheduled follow-up"],
+        "capabilities": [
+          "Send personalized follow-ups",
+          "Share case studies",
+          "Provide value content",
+          "Answer questions",
+          "Move leads through pipeline",
+          "Detect buying signals"
+        ],
+        "integrations": ["GHL Workflows", "Contact Tags", "Pipeline Management"]
+      },
+      {
+        "id": "sms_appointment",
+        "name": "Appointment Agent",
+        "purpose": "Confirmations and reminders",
+        "description": "Sends appointment confirmations, reminders, and handles rescheduling requests",
+        "triggers": ["Appointment scheduled", "24 hours before appointment", "1 hour before appointment"],
+        "capabilities": [
+          "Send confirmation messages",
+          "Send reminder sequences",
+          "Handle rescheduling",
+          "Confirm attendance",
+          "Send pre-meeting prep",
+          "Follow up no-shows"
+        ],
+        "integrations": ["GHL Calendar", "SMS Automation", "Workflow Triggers"]
+      },
+      {
+        "id": "sms_review_requester",
+        "name": "Review Requester Agent",
+        "purpose": "Get reviews from satisfied clients",
+        "description": "Requests reviews from happy clients and guides them through the review process",
+        "triggers": ["Project completed", "Positive feedback received", "Client milestone reached"],
+        "capabilities": [
+          "Request reviews tactfully",
+          "Send review links",
+          "Guide review process",
+          "Thank reviewers",
+          "Handle negative feedback",
+          "Track review completion"
+        ],
+        "integrations": ["GHL Reputation Management", "Google My Business", "Review Platforms"]
+      }
+    ],
+
+    "workflows": {
+      "voice_workflows": [
+        {
+          "id": "wf_inbound_call",
+          "name": "Inbound Call Handler",
+          "description": "Routes incoming calls to appropriate agent based on time, caller status, and inquiry type",
+          "trigger": "Inbound call received",
+          "steps": [
+            "Check business hours",
+            "Identify caller (existing contact or new)",
+            "Route to appropriate voice agent",
+            "Log call details",
+            "Create/update contact record",
+            "Trigger follow-up actions"
+          ]
+        },
+        {
+          "id": "wf_lead_qualification",
+          "name": "Lead Qualification Workflow",
+          "description": "Qualifies leads through discovery questions and scoring",
+          "trigger": "Lead Qualifier Agent completes call",
+          "steps": [
+            "Capture qualification data",
+            "Calculate lead score",
+            "Update contact fields",
+            "Apply appropriate tags",
+            "Move to pipeline stage",
+            "Trigger next action (demo or nurture)"
+          ]
+        },
+        {
+          "id": "wf_demo_booking",
+          "name": "Demo Booking Workflow",
+          "description": "Schedules demos, sends confirmations, and sets up reminders",
+          "trigger": "Demo Booker Agent schedules appointment",
+          "steps": [
+            "Create calendar event",
+            "Send confirmation email",
+            "Send confirmation SMS",
+            "Set reminder sequence",
+            "Update contact stage",
+            "Notify sales team"
+          ]
+        },
+        {
+          "id": "wf_missed_call",
+          "name": "Missed Call Recovery",
+          "description": "Follows up on missed calls with SMS and callback scheduling",
+          "trigger": "Missed call detected",
+          "steps": [
+            "Send immediate SMS apology",
+            "Offer callback scheduling link",
+            "Log missed call",
+            "Alert team",
+            "Schedule automated callback attempt",
+            "Track response"
+          ]
+        },
+        {
+          "id": "wf_voicemail",
+          "name": "Voicemail Processing",
+          "description": "Processes voicemails, transcribes content, and triggers follow-up",
+          "trigger": "Voicemail received",
+          "steps": [
+            "Transcribe voicemail",
+            "Extract key information",
+            "Create task for team",
+            "Send follow-up SMS",
+            "Schedule callback",
+            "Log in contact record"
+          ]
+        }
+      ],
+
+      "sms_workflows": [
+        {
+          "id": "wf_new_lead_sms",
+          "name": "New Lead SMS Sequence",
+          "description": "Welcome sequence for new leads captured via any channel",
+          "trigger": "New contact created with 'Lead' status",
+          "steps": [
+            "Send immediate welcome SMS",
+            "Provide business information",
+            "Day 1: Share value proposition",
+            "Day 2: Send case study",
+            "Day 4: Offer free consultation",
+            "Day 7: Check if questions remain"
+          ]
+        },
+        {
+          "id": "wf_demo_reminder_sms",
+          "name": "Demo Reminder Sequence",
+          "description": "Multi-touch reminder sequence for scheduled demos",
+          "trigger": "Demo appointment scheduled",
+          "steps": [
+            "Immediate: Confirmation SMS",
+            "24 hours before: Reminder with prep instructions",
+            "1 hour before: Final reminder with meeting link",
+            "After demo: Thank you and next steps",
+            "If no-show: Reschedule offer"
+          ]
+        },
+        {
+          "id": "wf_lead_nurture_sms",
+          "name": "Lead Nurture Sequence",
+          "description": "Long-term nurture sequence for leads not yet ready to buy",
+          "trigger": "Lead tagged as 'Nurture'",
+          "steps": [
+            "Week 1: Educational content",
+            "Week 2: Success story",
+            "Week 3: Industry insights",
+            "Week 4: Soft offer check-in",
+            "Week 6: Special promotion",
+            "Week 8: Final value reminder"
+          ]
+        },
+        {
+          "id": "wf_winback_sms",
+          "name": "Win-back Sequence",
+          "description": "Re-engagement sequence for cold or lost leads",
+          "trigger": "Lead inactive for 60+ days",
+          "steps": [
+            "Check-in message",
+            "Share recent updates",
+            "Offer special incentive",
+            "Last chance message",
+            "Archive if no response"
+          ]
+        }
+      ],
+
+      "email_workflows": [
+        {
+          "id": "wf_welcome_email",
+          "name": "Welcome Email Sequence",
+          "description": "Onboarding sequence for new leads and contacts",
+          "trigger": "New contact created",
+          "steps": [
+            "Day 0: Welcome email with resources",
+            "Day 1: Company introduction",
+            "Day 3: Service overview",
+            "Day 5: Case studies",
+            "Day 7: Consultation offer"
+          ]
+        },
+        {
+          "id": "wf_demo_email",
+          "name": "Demo Email Sequence",
+          "description": "Pre and post-demo email automation",
+          "trigger": "Demo scheduled or completed",
+          "steps": [
+            "Pre-demo: Confirmation and prep guide",
+            "Day of: Reminder with materials",
+            "Post-demo: Thank you and next steps",
+            "Day 2: Proposal delivery",
+            "Day 5: Follow-up check-in"
+          ]
+        },
+        {
+          "id": "wf_proposal_followup",
+          "name": "Proposal Follow-up Sequence",
+          "description": "Automated follow-up after proposal sent",
+          "trigger": "Proposal status changed to 'Sent'",
+          "steps": [
+            "Day 0: Proposal delivery email",
+            "Day 2: Review reminder",
+            "Day 4: Answer questions offer",
+            "Day 7: Check-in call",
+            "Day 10: Urgency reminder"
+          ]
+        },
+        {
+          "id": "wf_onboarding_email",
+          "name": "Client Onboarding Sequence",
+          "description": "Automated onboarding for new clients",
+          "trigger": "Opportunity won / Client status applied",
+          "steps": [
+            "Day 0: Welcome as client",
+            "Day 1: Account setup instructions",
+            "Day 3: Training resources",
+            "Week 2: Check-in and support",
+            "Week 4: Success tips and optimization"
+          ]
+        },
+        {
+          "id": "wf_reengagement_email",
+          "name": "Re-engagement Email Sequence",
+          "description": "Win-back sequence for inactive contacts",
+          "trigger": "Contact inactive for 90+ days",
+          "steps": [
+            "Week 1: 'We miss you' message",
+            "Week 2: What's new update",
+            "Week 3: Special offer",
+            "Week 4: Last chance message",
+            "Archive or remove if no engagement"
+          ]
+        }
+      ]
+    },
+
+    "custom_fields": [
+      {
+        "field_name": "lead_source",
+        "field_type": "dropdown",
+        "options": ["Website", "Phone", "Referral", "Social Media", "Paid Ad", "Other"],
+        "required": true
+      },
+      {
+        "field_name": "lead_score",
+        "field_type": "number",
+        "range": "0-100",
+        "required": false
+      },
+      {
+        "field_name": "budget_range",
+        "field_type": "dropdown",
+        "options": ["Under $1K", "$1K-$5K", "$5K-$10K", "$10K+"],
+        "required": false
+      },
+      {
+        "field_name": "timeline",
+        "field_type": "dropdown",
+        "options": ["Immediate", "1-3 months", "3-6 months", "6+ months", "Just exploring"],
+        "required": false
+      },
+      {
+        "field_name": "services_interested",
+        "field_type": "multi-select",
+        "options": ["AI Voice Agents", "Lead Generation", "CRM Setup", "Marketing Automation", "Consulting"],
+        "required": false
+      },
+      {
+        "field_name": "qualification_status",
+        "field_type": "dropdown",
+        "options": ["Not Qualified", "Partially Qualified", "Qualified", "Highly Qualified"],
+        "required": false
+      },
+      {
+        "field_name": "last_call_outcome",
+        "field_type": "text",
+        "required": false
+      },
+      {
+        "field_name": "next_action_date",
+        "field_type": "date",
+        "required": false
+      }
+    ],
+
+    "tags": [
+      "New Lead",
+      "Qualified",
+      "Demo Scheduled",
+      "Demo Completed",
+      "Proposal Sent",
+      "Closed Won",
+      "Closed Lost",
+      "Nurture",
+      "Hot Lead",
+      "Cold Lead",
+      "Callback Requested",
+      "After Hours Contact",
+      "High Value",
+      "VIP Client"
+    ],
+
+    "pipelines": [
+      {
+        "name": "Lead Pipeline",
+        "stages": [
+          "New Lead",
+          "Contacted",
+          "Qualified",
+          "Demo Scheduled",
+          "Demo Completed",
+          "Proposal Sent",
+          "Negotiation",
+          "Closed Won",
+          "Closed Lost"
+        ]
+      }
+    ]
+  },
+
+  "custom_values": [
+    {
+      "key": "{{business_name}}",
+      "default": "Capture Client",
+      "description": "Your business name"
+    },
+    {
+      "key": "{{business_phone}}",
+      "default": "(865) 346-3339",
+      "description": "Main business phone number"
+    },
+    {
+      "key": "{{business_email}}",
+      "default": "info@captureclient.net",
+      "description": "Main business email"
+    },
+    {
+      "key": "{{business_website}}",
+      "default": "https://capture-client-site.vercel.app/",
+      "description": "Business website URL"
+    },
+    {
+      "key": "{{business_hours}}",
+      "default": "Monday-Friday, 9am-6pm EST",
+      "description": "Business operating hours"
+    },
+    {
+      "key": "{{business_address}}",
+      "default": "Knoxville, TN",
+      "description": "Business location"
+    },
+    {
+      "key": "{{support_email}}",
+      "default": "info@captureclient.net",
+      "description": "Support email address"
+    },
+    {
+      "key": "{{calendar_link}}",
+      "default": "[Your GHL Calendar Link]",
+      "description": "Link to your GHL booking calendar"
+    },
+    {
+      "key": "{{demo_calendar_link}}",
+      "default": "[Your Demo Calendar Link]",
+      "description": "Link to demo booking calendar"
+    },
+    {
+      "key": "{{owner_name}}",
+      "default": "[Your Name]",
+      "description": "Business owner or main contact name"
+    }
+  ],
+
+  "integrations_required": [
+    {
+      "name": "GHL Phone System",
+      "required": true,
+      "purpose": "Voice agent functionality",
+      "setup_notes": "Must have GHL phone number configured"
+    },
+    {
+      "name": "GHL Conversations",
+      "required": true,
+      "purpose": "SMS and messaging automation",
+      "setup_notes": "Enable SMS on business number"
+    },
+    {
+      "name": "GHL Calendar",
+      "required": true,
+      "purpose": "Appointment scheduling",
+      "setup_notes": "Configure at least one calendar for bookings"
+    },
+    {
+      "name": "GHL Email Services",
+      "required": true,
+      "purpose": "Email automation workflows",
+      "setup_notes": "Configure and verify sending domain"
+    },
+    {
+      "name": "Twilio (via GHL)",
+      "required": true,
+      "purpose": "Phone and SMS infrastructure",
+      "setup_notes": "Configured automatically through GHL"
+    },
+    {
+      "name": "Google My Business",
+      "required": false,
+      "purpose": "Review management",
+      "setup_notes": "Connect for automated review requests"
+    }
+  ],
+
+  "prerequisites": [
+    "Active GHL account (Agency Pro or above recommended)",
+    "Configured phone number with voice capabilities",
+    "Verified email sending domain",
+    "At least one calendar set up",
+    "Basic understanding of GHL workflows"
+  ],
+
+  "installation_steps": [
+    {
+      "step": 1,
+      "action": "Backup current account",
+      "details": "Export any existing workflows, agents, and settings before importing"
+    },
+    {
+      "step": 2,
+      "action": "Import snapshot",
+      "details": "Use GHL snapshot import feature to load this snapshot"
+    },
+    {
+      "step": 3,
+      "action": "Update custom values",
+      "details": "Replace all placeholder values with your business information"
+    },
+    {
+      "step": 4,
+      "action": "Configure phone system",
+      "details": "Assign phone number to voice agents and test routing"
+    },
+    {
+      "step": 5,
+      "action": "Set up calendars",
+      "details": "Configure calendar availability and link to booking agents"
+    },
+    {
+      "step": 6,
+      "action": "Test voice agents",
+      "details": "Call your number and test each voice agent scenario"
+    },
+    {
+      "step": 7,
+      "action": "Test SMS automation",
+      "details": "Send test messages and verify agent responses"
+    },
+    {
+      "step": 8,
+      "action": "Test workflows",
+      "details": "Create test contacts and verify workflow execution"
+    },
+    {
+      "step": 9,
+      "action": "Configure integrations",
+      "details": "Connect any optional integrations (GMB, etc.)"
+    },
+    {
+      "step": 10,
+      "action": "Go live",
+      "details": "Enable all agents and workflows for production use"
+    }
+  ],
+
+  "testing_checklist": [
+    "Voice agent answers inbound calls correctly",
+    "After hours agent activates outside business hours",
+    "SMS receptionist responds to text inquiries",
+    "Lead qualification workflow captures data properly",
+    "Demo booking creates calendar appointments",
+    "Appointment reminders send at correct times",
+    "Email sequences trigger on correct events",
+    "Custom fields populate with correct data",
+    "Tags apply automatically based on triggers",
+    "Pipeline stages update based on actions",
+    "Missed call recovery workflow activates",
+    "Review request sends after project completion",
+    "All custom values replaced with actual business info",
+    "Phone number routing works correctly",
+    "Calendar links are functional"
+  ],
+
+  "support": {
+    "documentation": "See docs folder for detailed guides",
+    "contact": "info@captureclient.net",
+    "website": "https://capture-client-site.vercel.app/"
+  },
+
+  "license": "Proprietary - Licensed for use by Capture Client customers only",
+
+  "changelog": [
+    {
+      "version": "1.0.0",
+      "date": "2025-12-01",
+      "changes": [
+        "Initial release",
+        "4 voice agents included",
+        "4 SMS agents included",
+        "14 automation workflows",
+        "Complete lead management system"
+      ]
+    }
+  ]
+}

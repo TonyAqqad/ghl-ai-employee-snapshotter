@@ -1,0 +1,546 @@
+{
+  "agent_name": "Capture Client After Hours Agent",
+  "agent_type": "voice_after_hours",
+  "business_name": "Capture Client",
+  "description": "Specialized voice agent for handling after-hours calls. Takes messages, offers callback scheduling, handles urgent matters, and ensures no opportunity is lost.",
+  "version": "1.0.0",
+  "last_updated": "2025-12-01",
+
+  "model_settings": {
+    "provider": "openai",
+    "model": "gpt-4o",
+    "temperature": 0.7,
+    "max_tokens": 450,
+    "response_format": "conversational"
+  },
+
+  "voice_settings": {
+    "voice_id": "alloy",
+    "voice_provider": "elevenlabs",
+    "speaking_rate": 0.98,
+    "pitch": 0,
+    "stability": 0.75,
+    "similarity_boost": 0.75,
+    "style": "calm_professional"
+  },
+
+  "business_info": {
+    "name": "Capture Client",
+    "type": "Marketing Agency - AI Voice Agents and Lead Generation",
+    "location": "Knoxville, Tennessee",
+    "phone": "(865) 346-3339",
+    "timezone": "America/New_York",
+    "business_hours_display": "Monday through Friday, 9 AM to 6 PM Eastern Time"
+  },
+
+  "business_hours": {
+    "timezone": "America/New_York",
+    "schedule": {
+      "monday": { "open": "09:00", "close": "18:00", "enabled": true },
+      "tuesday": { "open": "09:00", "close": "18:00", "enabled": true },
+      "wednesday": { "open": "09:00", "close": "18:00", "enabled": true },
+      "thursday": { "open": "09:00", "close": "18:00", "enabled": true },
+      "friday": { "open": "09:00", "close": "18:00", "enabled": true },
+      "saturday": { "open": "00:00", "close": "00:00", "enabled": false },
+      "sunday": { "open": "00:00", "close": "00:00", "enabled": false }
+    },
+    "holidays": []
+  },
+
+  "greetings": {
+    "weeknight_greeting": {
+      "text": "Thank you for calling Capture Client. You've reached us after business hours - our office is normally open Monday through Friday, 9 AM to 6 PM Eastern Time. I'm Alex, your AI assistant, and I'm here to help you right now. What can I do for you?",
+      "conditions": "weeknight_after_hours"
+    },
+    "weekend_greeting": {
+      "text": "Thank you for calling Capture Client. You've reached us on the weekend. Our office is normally open Monday through Friday, 9 AM to 6 PM Eastern Time, but I'm Alex, your AI assistant, and I'm here 24/7 to help. What brings you to us today?",
+      "conditions": "weekend"
+    },
+    "holiday_greeting": {
+      "text": "Thank you for calling Capture Client. We're closed today for the {holiday_name} holiday. Our normal business hours are Monday through Friday, 9 AM to 6 PM Eastern Time. I'm Alex, your AI assistant, and I'm here to help. How can I assist you?",
+      "conditions": "holiday"
+    },
+    "early_morning_greeting": {
+      "text": "Thank you for calling Capture Client. You're calling a bit early - we open at 9 AM Eastern Time. I'm Alex, your AI assistant, and I'm available right now to help you. What can I do for you?",
+      "conditions": "before_business_hours"
+    }
+  },
+
+  "conversation_flow": {
+    "intent_detection": {
+      "enabled": true,
+      "intents": [
+        {
+          "name": "learn_about_services",
+          "keywords": ["what do you do", "services", "tell me about", "information", "learn more", "explain"],
+          "action": "provide_service_overview_and_offer_callback"
+        },
+        {
+          "name": "urgent_support",
+          "keywords": ["urgent", "emergency", "critical", "down", "not working", "broken", "immediate"],
+          "action": "assess_urgency_and_route"
+        },
+        {
+          "name": "schedule_appointment",
+          "keywords": ["demo", "appointment", "schedule", "book", "meeting", "consultation", "call back"],
+          "action": "schedule_callback_or_demo"
+        },
+        {
+          "name": "pricing_inquiry",
+          "keywords": ["price", "cost", "how much", "pricing", "rates", "fees"],
+          "action": "provide_basic_info_and_schedule_follow_up"
+        },
+        {
+          "name": "general_inquiry",
+          "keywords": ["question", "wondering", "curious", "interested"],
+          "action": "take_message_and_schedule_callback"
+        },
+        {
+          "name": "existing_customer_support",
+          "keywords": ["customer", "client", "account", "issue", "problem", "help"],
+          "action": "take_detailed_message_priority_callback"
+        }
+      ]
+    },
+
+    "service_overview": {
+      "enabled": true,
+      "response": "Absolutely! Capture Client specializes in two main areas: We build custom AI voice agents that handle your inbound and outbound calls 24/7 - just like I'm helping you right now - answering questions, qualifying leads, and booking appointments. We also provide comprehensive lead generation services to fill your pipeline with qualified prospects. Everything integrates with your existing CRM and systems. Since you've called after hours, I'd love to have one of our specialists give you a proper demo during business hours. Would you like me to schedule a callback for you?"
+    },
+
+    "urgency_assessment": {
+      "enabled": true,
+      "questions": [
+        "Can you tell me more about what's happening?",
+        "Is this affecting your business operations right now?",
+        "Have you tried any troubleshooting steps already?"
+      ],
+      "escalation_criteria": {
+        "high_urgency": [
+          "System completely down",
+          "Revenue-impacting issue",
+          "Time-sensitive business need",
+          "Existing customer with critical problem"
+        ],
+        "medium_urgency": [
+          "Feature not working as expected",
+          "Need answer for upcoming presentation",
+          "Scheduled demo tomorrow"
+        ],
+        "low_urgency": [
+          "General questions",
+          "Exploratory inquiry",
+          "Future planning"
+        ]
+      },
+      "routing_by_urgency": {
+        "high": "attempt_emergency_contact_or_detailed_message",
+        "medium": "schedule_priority_morning_callback",
+        "low": "standard_callback_or_message"
+      }
+    }
+  },
+
+  "callback_scheduling": {
+    "enabled": true,
+    "prompt": "I'd be happy to schedule a callback for you. Our team is available Monday through Friday, 9 AM to 6 PM Eastern Time. What day and time works best for you?",
+
+    "scheduling_options": {
+      "next_business_day_morning": {
+        "label": "First thing tomorrow morning",
+        "time_range": "09:00-10:00",
+        "priority": "high"
+      },
+      "next_business_day_afternoon": {
+        "label": "Tomorrow afternoon",
+        "time_range": "13:00-15:00",
+        "priority": "medium"
+      },
+      "specific_date_time": {
+        "label": "Specific date and time",
+        "allow_custom": true,
+        "validate_business_hours": true
+      },
+      "as_soon_as_possible": {
+        "label": "As soon as the office opens",
+        "time_range": "09:00-09:30",
+        "priority": "urgent"
+      }
+    },
+
+    "confirmation_message": "Perfect! I've scheduled a callback for {day}, {date} at {time} Eastern Time. Someone from our team will call you at {phone}. You'll also receive a text confirmation. Is there anything else I can help you with right now?",
+
+    "information_collection": {
+      "required_fields": ["first_name", "phone"],
+      "optional_fields": ["last_name", "email", "company_name", "reason_for_call"],
+      "collection_script": "So I can have the right person call you back, can I get your name and the best phone number to reach you?"
+    }
+  },
+
+  "message_taking": {
+    "enabled": true,
+    "prompt": "I'd be happy to take a detailed message for our team. They'll review it first thing during business hours and get back to you. What would you like me to pass along?",
+
+    "message_structure": {
+      "required_info": [
+        "caller_name",
+        "callback_number",
+        "reason_for_call"
+      ],
+      "optional_info": [
+        "company_name",
+        "email",
+        "best_time_to_call",
+        "urgency_level",
+        "detailed_message"
+      ]
+    },
+
+    "guided_questions": [
+      "Can I get your full name?",
+      "What's the best number to reach you?",
+      "What's your call regarding?",
+      "Is there anything specific you'd like the team to know or prepare for when they call you back?",
+      "Would you like to provide an email address as well?"
+    ],
+
+    "message_confirmation": "Thank you, {first_name}. I've got your message recorded. Our team will review it when they're in the office and someone will call you back at {phone} within one business day. You'll also receive a text confirmation of your message. Is there anything else you need help with tonight?",
+
+    "delivery_method": {
+      "create_task": true,
+      "send_email_notification": true,
+      "send_sms_to_team": true,
+      "add_to_crm": true,
+      "priority_flag_if_urgent": true
+    }
+  },
+
+  "self_service_options": {
+    "enabled": true,
+    "offer_when": "caller_has_general_questions",
+
+    "available_resources": [
+      {
+        "resource": "website",
+        "offer": "I can also direct you to our website if you'd like to browse our services and case studies. Would you like me to text you the link?",
+        "action": "send_sms_with_website_link"
+      },
+      {
+        "resource": "information_packet",
+        "offer": "I can send you an information packet via email with details about our services, pricing overview, and case studies. Would that be helpful?",
+        "action": "send_email_with_resources"
+      },
+      {
+        "resource": "calendar_link",
+        "offer": "If you'd prefer to schedule directly, I can text you a link to our calendar where you can pick a time that works for you. Would you like that?",
+        "action": "send_sms_with_calendar_link"
+      }
+    ]
+  },
+
+  "urgent_escalation": {
+    "enabled": true,
+    "trigger_conditions": [
+      "caller_states_emergency",
+      "existing_customer_with_critical_issue",
+      "revenue_impacting_problem",
+      "explicit_urgency_request"
+    ],
+
+    "escalation_flow": {
+      "step_1": {
+        "action": "acknowledge_urgency",
+        "script": "I understand this is urgent. Let me see how I can help you right away."
+      },
+      "step_2": {
+        "action": "gather_critical_details",
+        "questions": [
+          "Can you describe exactly what's happening?",
+          "When did this start?",
+          "Is this impacting your business operations right now?",
+          "Are you an existing customer or a new prospect?"
+        ]
+      },
+      "step_3": {
+        "action": "assess_and_route",
+        "existing_customer_critical": {
+          "script": "Given the urgency of your situation, let me take detailed notes and I'll have our on-call support specialist contact you within the next 30 minutes. In the meantime, is there any immediate troubleshooting we can try?",
+          "notification": "immediate_sms_and_email_to_support_team"
+        },
+        "new_prospect_urgent_timeline": {
+          "script": "I understand you're working on a tight timeline. Let me take down all your details and I'll personally flag this for our team to contact you first thing when the office opens at 9 AM Eastern. I can also see if there's an on-call specialist available to reach out sooner. Would that work?",
+          "notification": "priority_task_creation_with_alerts"
+        }
+      }
+    },
+
+    "emergency_contact": {
+      "enabled": false,
+      "note": "Enable this if there's an on-call number for true emergencies",
+      "phone": null,
+      "criteria": "existing_customer_only && business_critical"
+    }
+  },
+
+  "call_routing": {
+    "routing_rules": [
+      {
+        "rule_id": "urgent_existing_customer",
+        "condition": "urgency == 'high' && existing_customer == true",
+        "action": "detailed_message_with_priority_flag",
+        "notify": "support_team_immediately",
+        "callback_window": "30_minutes_to_2_hours"
+      },
+      {
+        "rule_id": "urgent_new_prospect",
+        "condition": "urgency == 'high' && existing_customer == false",
+        "action": "schedule_first_available_callback",
+        "notify": "sales_team_priority",
+        "callback_window": "next_business_day_morning"
+      },
+      {
+        "rule_id": "standard_inquiry",
+        "condition": "urgency == 'medium' || urgency == 'low'",
+        "action": "callback_scheduling_or_message",
+        "notify": "standard_notification",
+        "callback_window": "within_24_business_hours"
+      },
+      {
+        "rule_id": "demo_request",
+        "condition": "intent == 'schedule_appointment'",
+        "action": "schedule_demo_callback",
+        "route_to": "demo_booking_queue"
+      }
+    ]
+  },
+
+  "ghl_integration": {
+    "pipeline_settings": {
+      "default_pipeline": "After Hours Leads",
+      "stages": {
+        "new_after_hours": "After Hours Inquiry",
+        "callback_scheduled": "Callback Scheduled",
+        "urgent_follow_up": "Urgent - Priority Callback",
+        "message_left": "Message Left"
+      }
+    },
+
+    "contact_creation": {
+      "auto_create": true,
+      "update_if_exists": true,
+      "required_fields": ["phone", "first_name"],
+      "optional_fields": ["last_name", "email", "company", "source"],
+      "default_source": "After Hours Voice Call",
+      "tags": ["after_hours", "voice_lead", "needs_callback"]
+    },
+
+    "task_creation": {
+      "enabled": true,
+      "task_priority_mapping": {
+        "urgent": "high",
+        "medium": "medium",
+        "low": "normal"
+      },
+      "default_task_title": "After hours callback - {first_name} {last_name}",
+      "task_due_mapping": {
+        "urgent": "next_business_day_09:00",
+        "medium": "next_business_day_10:00",
+        "low": "within_24_hours"
+      },
+      "assignment_method": "round_robin",
+      "task_notes_template": "After hours call received on {date} at {time}\n\nCaller: {first_name} {last_name}\nCompany: {company_name}\nPhone: {phone}\nEmail: {email}\n\nReason for call: {reason}\nUrgency: {urgency_level}\n\nDetailed message:\n{message_content}\n\nRequested callback time: {callback_preference}"
+    },
+
+    "notifications": {
+      "immediate_sms": {
+        "enabled": true,
+        "recipients": ["on_call_team"],
+        "conditions": "urgency == 'high'",
+        "message": "URGENT after hours lead: {first_name} {last_name} - {company_name}. Reason: {reason}. Call {phone} ASAP."
+      },
+      "morning_digest": {
+        "enabled": true,
+        "time": "08:30",
+        "recipients": ["sales_team", "support_team"],
+        "summary": "After hours calls summary"
+      },
+      "individual_notification": {
+        "enabled": true,
+        "per_call": true,
+        "channels": ["email", "slack"]
+      }
+    },
+
+    "custom_fields": {
+      "call_time": "datetime",
+      "urgency_level": "text",
+      "intent_category": "text",
+      "callback_scheduled_for": "datetime",
+      "message_content": "textarea",
+      "caller_timezone": "text",
+      "existing_customer": "boolean",
+      "after_hours_reason": "text"
+    },
+
+    "workflow_triggers": {
+      "enabled": true,
+      "triggers": [
+        {
+          "event": "after_hours_call_received",
+          "action": "send_confirmation_sms_to_caller",
+          "sms_template": "Hi {first_name}, thanks for calling Capture Client! We received your message and will call you back at {callback_time}. Ref: AH{task_id}"
+        },
+        {
+          "event": "callback_scheduled",
+          "action": "send_calendar_invite_and_reminder",
+          "workflow": "callback_reminder_sequence"
+        },
+        {
+          "event": "urgent_flag",
+          "action": "immediate_team_notification",
+          "workflow": "urgent_after_hours_alert"
+        }
+      ]
+    }
+  },
+
+  "conversation_intelligence": {
+    "sentiment_analysis": {
+      "enabled": true,
+      "real_time": true,
+      "track_frustration": true,
+      "adjust_tone_based_on_sentiment": true
+    },
+
+    "call_recording": {
+      "enabled": true,
+      "retention_days": 730,
+      "transcription_enabled": true
+    },
+
+    "analytics_tracking": {
+      "track_after_hours_volume": true,
+      "track_urgency_distribution": true,
+      "track_intent_categories": true,
+      "track_callback_completion_rate": true,
+      "track_resolution_time": true
+    }
+  },
+
+  "personality_traits": {
+    "tone": "calm_professional",
+    "pace": "steady_reassuring",
+    "characteristics": [
+      "Calm and reassuring",
+      "Professional and capable",
+      "Empathetic and understanding",
+      "Solution-oriented",
+      "Patient and helpful",
+      "Efficient but not rushed"
+    ],
+    "do": [
+      "Acknowledge that it's after hours",
+      "Set clear expectations for follow-up",
+      "Be empathetic about their timing needs",
+      "Offer multiple options (callback, message, resources)",
+      "Confirm all details clearly",
+      "Thank them for calling even after hours",
+      "Provide reassurance that they'll be taken care of"
+    ],
+    "dont": [
+      "Make the caller feel bad for calling after hours",
+      "Rush through the conversation",
+      "Sound robotic or impersonal",
+      "Make promises about specific response times you can't guarantee",
+      "Dismiss urgency without assessment",
+      "Forget to get complete contact information"
+    ]
+  },
+
+  "quality_assurance": {
+    "completion_criteria": {
+      "contact_info_collected": true,
+      "reason_for_call_documented": true,
+      "next_step_defined": true,
+      "confirmation_sent": true,
+      "task_created": true
+    },
+
+    "success_metrics": {
+      "target_call_handling_time": "4-6 minutes",
+      "target_information_completeness": "90%",
+      "target_callback_completion_rate": "85%",
+      "target_caller_satisfaction": "4.5/5"
+    }
+  },
+
+  "compliance": {
+    "call_recording_disclosure": true,
+    "disclosure_message": "This call is being recorded for quality and training purposes.",
+    "gdpr_compliant": true,
+    "tcpa_compliant": true,
+    "data_retention_policy": "730_days"
+  },
+
+  "error_handling": {
+    "system_failure": {
+      "fallback": "apologize_and_take_manual_message",
+      "script": "I apologize - I'm having a technical issue. Let me make sure I get your information down manually. Can you give me your name and phone number one more time?"
+    },
+    "unclear_intent": {
+      "max_attempts": 2,
+      "fallback": "offer_all_options",
+      "script": "I want to make sure I help you in the best way. I can take a detailed message, schedule a callback, send you information via email, or if it's urgent, flag your call for immediate attention. What would be most helpful?"
+    }
+  },
+
+  "testing_scenarios": [
+    {
+      "scenario": "Weekend call - general inquiry about services",
+      "expected_outcome": "Provide overview, schedule callback for Monday morning"
+    },
+    {
+      "scenario": "Urgent existing customer issue after hours",
+      "expected_outcome": "Take detailed message, flag as urgent, promise callback within 30min-2hrs"
+    },
+    {
+      "scenario": "Late night demo request",
+      "expected_outcome": "Schedule callback with demo team for next available slot"
+    },
+    {
+      "scenario": "Caller just wants to leave message",
+      "expected_outcome": "Efficient message taking, confirmation sent, task created"
+    },
+    {
+      "scenario": "Early morning call (7am) from eager prospect",
+      "expected_outcome": "Acknowledge early call, offer immediate scheduling or callback when office opens"
+    }
+  ],
+
+  "special_features": {
+    "holiday_awareness": {
+      "enabled": true,
+      "auto_detect_holidays": true,
+      "custom_greetings_by_holiday": true
+    },
+
+    "timezone_intelligence": {
+      "enabled": true,
+      "detect_caller_timezone": true,
+      "explain_time_differences": true,
+      "schedule_in_both_timezones": true
+    },
+
+    "multi_language_support": {
+      "enabled": false,
+      "note": "Enable if needed for non-English callers",
+      "languages": []
+    },
+
+    "voicemail_transcription": {
+      "enabled": true,
+      "send_to_email": true,
+      "send_to_crm": true
+    }
+  }
+}

@@ -1,0 +1,245 @@
+{
+  "workflowId": "new-lead-sms-sequence-001",
+  "workflowName": "New Lead SMS Sequence",
+  "version": "1.0.0",
+  "status": "active",
+  "description": "Immediate response to form submissions with 7-day follow-up sequence to book demo",
+
+  "trigger": {
+    "type": "form_submission",
+    "forms": [
+      "contact_form",
+      "demo_request_form",
+      "pricing_inquiry_form",
+      "landing_page_form"
+    ],
+    "additionalTriggers": [
+      "new_contact_created",
+      "inbound_call_missed",
+      "chatbot_handoff"
+    ]
+  },
+
+  "objectives": [
+    "Respond immediately to new leads (within 5 minutes)",
+    "Qualify interest level and business type",
+    "Book demo within 7 days",
+    "Provide value and build trust",
+    "Identify and prioritize hot leads"
+  ],
+
+  "sequence": [
+    {
+      "step": 1,
+      "name": "Immediate Response",
+      "delay": "0 minutes",
+      "type": "sms",
+      "message": "Hi {{first_name}}! 👋 Thanks for reaching out to Capture Client! I'm {agent_name}.\n\nI saw you're interested in {{interest}}. I'd love to help! Are you looking to:\n1️⃣ Book a demo\n2️⃣ Get pricing info\n3️⃣ Learn more about our services\n\nJust reply with the number!",
+      "personalization": {
+        "first_name": "required",
+        "interest": "from form field or default to 'our AI voice agents'"
+      },
+      "waitForResponse": true,
+      "responseTimeout": "2 hours"
+    },
+
+    {
+      "step": 2,
+      "name": "Qualification Response",
+      "delay": "immediate_after_response",
+      "type": "conditional_sms",
+      "conditions": {
+        "if_option_1_demo": {
+          "message": "Awesome! Let's get you scheduled. What does your calendar look like this week? We have openings:\n\n• Tuesday 2pm EST\n• Wednesday 11am EST  \n• Thursday 3pm EST\n\nOr suggest a time that works better!",
+          "tag": "demo-requested",
+          "pipelineStage": "Demo Scheduled"
+        },
+        "if_option_2_pricing": {
+          "message": "Great question! Our AI Voice Agents start at $999/mo. The exact price depends on features and call volume.\n\nTo give you accurate pricing, I need to ask: What type of business are you in, and roughly how many calls do you handle per month?",
+          "tag": "pricing-inquiry",
+          "continueSequence": true
+        },
+        "if_option_3_learn_more": {
+          "message": "Happy to share! We build AI voice agents that handle calls 24/7 - appointments, lead qualification, customer service, etc.\n\nMost clients see 40-60% more booked appointments and never miss a lead again.\n\nWhat's your biggest challenge right now - getting more leads or handling the ones you have?",
+          "tag": "learning-stage",
+          "continueSequence": true
+        },
+        "if_no_response": {
+          "delay": "2 hours",
+          "message": "No worries if you're busy! Just wanted to make sure you got my message.\n\nWhen you're ready, I'm here to answer any questions about our AI voice agents or book you a quick demo.\n\nWhat works better for you - a call or more info via text?",
+          "continueSequence": true
+        }
+      }
+    },
+
+    {
+      "step": 3,
+      "name": "Value Share - Day 1",
+      "delay": "6 hours",
+      "type": "sms",
+      "condition": "if_not_responded_to_step_2_or_not_demo_booked",
+      "message": "Hey {{first_name}}! Quick insight: 67% of customers expect businesses to respond within 5 minutes. That's where AI agents shine - instant response, every time. 📞\n\nCurious how this could work for {{business_name}}?",
+      "waitForResponse": true
+    },
+
+    {
+      "step": 4,
+      "name": "Social Proof - Day 2",
+      "delay": "24 hours",
+      "type": "sms",
+      "condition": "if_still_no_demo_booked",
+      "message": "{{first_name}}, thought you'd like this - we just helped a {{industry}} business go from 20 to 65 appointments/month using our AI agent. 📈\n\nTheir biggest win? Never missing a lead, even after hours.\n\nWant to see how it works? I can show you in 15 min!",
+      "waitForResponse": true
+    },
+
+    {
+      "step": 5,
+      "name": "Pain Point Address - Day 3",
+      "delay": "48 hours",
+      "type": "sms",
+      "condition": "if_still_no_demo_booked",
+      "message": "Quick question, {{first_name}}: How many leads do you think you lose each month because:\n\n❌ Calls go to voicemail\n❌ Response time is too slow\n❌ Team is too busy\n\nMost businesses don't realize it's 30-40%. Want to plug that leak?",
+      "waitForResponse": true
+    },
+
+    {
+      "step": 6,
+      "name": "Direct Demo Offer - Day 4",
+      "delay": "72 hours",
+      "type": "sms",
+      "condition": "if_still_no_demo_booked",
+      "message": "Hey {{first_name}}, I don't want to keep bugging you! 😊\n\nBut if you're still curious about AI voice agents, I'd love to show you a 15-minute demo this week.\n\nNo pressure sales pitch - just showing you how it works and if it's a fit.\n\nInterested? Reply YES and I'll send you times!",
+      "waitForResponse": true
+    },
+
+    {
+      "step": 7,
+      "name": "Case Study Share - Day 5",
+      "delay": "96 hours",
+      "type": "sms",
+      "condition": "if_still_no_demo_booked",
+      "message": "{{first_name}}, last message from me, I promise! 🙂\n\nI just wanted to share a quick case study of how a company like yours used our AI agent: {{case_study_link}}\n\nIf you ever want to chat, just reply to this thread or visit our calendar: {{calendar_link}}\n\nBest of luck growing {{business_name}}!",
+      "finalStep": false
+    },
+
+    {
+      "step": 8,
+      "name": "Final Check-in - Day 7",
+      "delay": "168 hours",
+      "type": "sms",
+      "condition": "if_any_engagement_but_no_demo",
+      "message": "Hi {{first_name}}! Just checking in one last time. I know timing isn't always right.\n\nIf things change and you want to explore AI voice agents down the road, we're here!\n\nShould I follow up in a month, or would you prefer I don't reach out again?",
+      "waitForResponse": true,
+      "responseHandling": {
+        "if_followup_requested": {
+          "tag": "follow-up-30-days",
+          "addToWorkflow": "lead-nurture-sequence"
+        },
+        "if_not_interested": {
+          "tag": "not-interested",
+          "removeFromWorkflow": true
+        }
+      }
+    }
+  ],
+
+  "exitConditions": {
+    "demo_booked": {
+      "action": "exit_workflow",
+      "moveToWorkflow": "demo-reminder-sequence",
+      "tag": "demo-scheduled"
+    },
+    "opted_out": {
+      "action": "exit_workflow",
+      "tag": "opted-out"
+    },
+    "explicitly_not_interested": {
+      "action": "exit_workflow",
+      "tag": "not-interested",
+      "waitPeriod": "90 days before re-engagement"
+    },
+    "became_customer": {
+      "action": "exit_workflow",
+      "tag": "customer"
+    }
+  },
+
+  "intelligentRouting": {
+    "hotLeadIndicators": [
+      "Responds within 5 minutes",
+      "Asks about pricing or ROI",
+      "Mentions specific pain point",
+      "Asks when can start",
+      "Multiple engaged responses"
+    ],
+    "hotLeadAction": {
+      "notifyTeam": true,
+      "escalateToPriority": true,
+      "assignToSalesRep": true,
+      "skipToStep": 2
+    }
+  },
+
+  "businessHoursHandling": {
+    "duringHours": {
+      "responseTime": "immediate",
+      "liveHandoffAvailable": true
+    },
+    "afterHours": {
+      "responseTime": "immediate",
+      "note": "Will mention team available Mon-Fri 9am-6pm EST for calls"
+    }
+  },
+
+  "personalizationTokens": {
+    "required": [
+      "{{first_name}}"
+    ],
+    "optional": [
+      "{{business_name}}",
+      "{{industry}}",
+      "{{interest}}",
+      "{{case_study_link}}",
+      "{{calendar_link}}",
+      "{{agent_name}}"
+    ],
+    "dynamic": [
+      "{{pain_point}}",
+      "{{service_interest}}",
+      "{{budget_range}}"
+    ]
+  },
+
+  "integrations": {
+    "ghl": {
+      "updateOpportunity": true,
+      "addTags": true,
+      "logActivity": true,
+      "updateCustomFields": [
+        "lead_source_sms",
+        "sequence_stage",
+        "last_sms_sent",
+        "engagement_score"
+      ]
+    }
+  },
+
+  "analytics": {
+    "trackMetrics": [
+      "sequence_completion_rate",
+      "response_rate_by_step",
+      "time_to_first_response",
+      "demo_booking_rate",
+      "hot_lead_conversion",
+      "opt_out_rate",
+      "average_steps_to_conversion"
+    ]
+  },
+
+  "complianceSettings": {
+    "optOutKeywords": ["stop", "unsubscribe", "opt out"],
+    "businessHoursOnly": false,
+    "consentRequired": true,
+    "maxDailyMessages": 3
+  }
+}

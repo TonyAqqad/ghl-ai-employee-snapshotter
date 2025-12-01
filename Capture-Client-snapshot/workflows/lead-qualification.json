@@ -1,0 +1,375 @@
+{
+  "name": "Lead Qualification Workflow",
+  "description": "Automatically scores and qualifies leads based on call data and routes to appropriate nurture sequence",
+  "version": "1.0.0",
+  "trigger": {
+    "type": "workflow_trigger",
+    "source": "inbound-call-handler",
+    "conditions": {
+      "call_outcome": "new_lead"
+    }
+  },
+  "settings": {
+    "scoring_criteria": {
+      "budget": {
+        "high": { "min": 5000, "points": 30 },
+        "medium": { "min": 2000, "max": 4999, "points": 20 },
+        "low": { "min": 500, "max": 1999, "points": 10 },
+        "unknown": { "points": 5 }
+      },
+      "timeline": {
+        "immediate": { "value": "within_1_week", "points": 30 },
+        "soon": { "value": "within_1_month", "points": 20 },
+        "future": { "value": "3_months_plus", "points": 10 },
+        "unknown": { "points": 5 }
+      },
+      "decision_maker": {
+        "yes": { "points": 25 },
+        "influencer": { "points": 15 },
+        "no": { "points": 5 }
+      },
+      "business_type": {
+        "established": { "points": 20 },
+        "startup": { "points": 15 },
+        "enterprise": { "points": 25 }
+      },
+      "specific_need": {
+        "identified": { "points": 15 },
+        "vague": { "points": 5 }
+      }
+    },
+    "lead_tiers": {
+      "hot": { "min_score": 80, "max_score": 100 },
+      "warm": { "min_score": 50, "max_score": 79 },
+      "cold": { "min_score": 0, "max_score": 49 }
+    }
+  },
+  "steps": [
+    {
+      "id": "step_1",
+      "name": "Extract Lead Data from Call",
+      "type": "action",
+      "action": {
+        "type": "ai_data_extraction",
+        "source": "{{call.transcript}}",
+        "extract_fields": [
+          {
+            "field": "budget",
+            "type": "currency",
+            "prompt": "Extract the mentioned budget or budget range"
+          },
+          {
+            "field": "timeline",
+            "type": "timeline",
+            "prompt": "Determine when they want to start or make a decision"
+          },
+          {
+            "field": "decision_maker",
+            "type": "boolean_role",
+            "prompt": "Is this person the decision maker, influencer, or neither?"
+          },
+          {
+            "field": "business_type",
+            "type": "category",
+            "prompt": "Classify the business as established, startup, or enterprise"
+          },
+          {
+            "field": "specific_need",
+            "type": "text",
+            "prompt": "What specific pain point or need did they express?"
+          },
+          {
+            "field": "industry",
+            "type": "category",
+            "prompt": "What industry is the prospect in?"
+          },
+          {
+            "field": "company_size",
+            "type": "number",
+            "prompt": "How many employees does their company have?"
+          },
+          {
+            "field": "current_solution",
+            "type": "text",
+            "prompt": "What solution are they currently using, if any?"
+          }
+        ]
+      },
+      "next": "step_2"
+    },
+    {
+      "id": "step_2",
+      "name": "Calculate Lead Score",
+      "type": "action",
+      "action": {
+        "type": "calculate",
+        "formula": "lead_score",
+        "inputs": {
+          "budget_score": "{{settings.scoring_criteria.budget[extracted.budget].points}}",
+          "timeline_score": "{{settings.scoring_criteria.timeline[extracted.timeline].points}}",
+          "decision_maker_score": "{{settings.scoring_criteria.decision_maker[extracted.decision_maker].points}}",
+          "business_type_score": "{{settings.scoring_criteria.business_type[extracted.business_type].points}}",
+          "specific_need_score": "{{settings.scoring_criteria.specific_need[extracted.specific_need].points}}"
+        },
+        "output": "total_lead_score"
+      },
+      "next": "step_3"
+    },
+    {
+      "id": "step_3",
+      "name": "Assign Lead Tier",
+      "type": "decision",
+      "decisions": [
+        {
+          "condition": {
+            "field": "{{total_lead_score}}",
+            "operator": ">=",
+            "value": 80
+          },
+          "action": {
+            "type": "set_variable",
+            "variable": "lead_tier",
+            "value": "hot"
+          },
+          "next": "step_4"
+        },
+        {
+          "condition": {
+            "field": "{{total_lead_score}}",
+            "operator": ">=",
+            "value": 50
+          },
+          "action": {
+            "type": "set_variable",
+            "variable": "lead_tier",
+            "value": "warm"
+          },
+          "next": "step_7"
+        }
+      ],
+      "default": {
+        "action": {
+          "type": "set_variable",
+          "variable": "lead_tier",
+          "value": "cold"
+        },
+        "next": "step_10"
+      }
+    },
+    {
+      "id": "step_4",
+      "name": "Hot Lead - Immediate Notification",
+      "type": "action",
+      "action": {
+        "type": "send_notification",
+        "channels": [
+          {
+            "type": "sms",
+            "recipient": "{{custom_values.sales_team_phone}}",
+            "message": "🔥 HOT LEAD ALERT!\n\nName: {{contact.name}}\nPhone: {{contact.phone}}\nScore: {{total_lead_score}}/100\n\nBudget: ${{extracted.budget}}\nTimeline: {{extracted.timeline}}\nNeed: {{extracted.specific_need}}\n\nAction Required: Call within 15 minutes!"
+          },
+          {
+            "type": "email",
+            "recipient": "{{custom_values.sales_team_email}}",
+            "subject": "🔥 Hot Lead: {{contact.name}} - Score {{total_lead_score}}",
+            "body": "{{templates.hot_lead_email}}"
+          },
+          {
+            "type": "slack",
+            "channel": "#hot-leads",
+            "message": "{{templates.hot_lead_slack}}"
+          }
+        ]
+      },
+      "next": "step_5"
+    },
+    {
+      "id": "step_5",
+      "name": "Hot Lead - Auto Book Demo Attempt",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "Hi {{contact.first_name}}! Thanks for your interest in Capture Client's AI solutions. Based on our conversation, I'd love to show you a live demo. \n\nWould you like to schedule a 30-minute demo this week? Reply YES and I'll send you available times. \n\nOr book instantly: {{custom_values.booking_link}}\n\n- Capture Client Team"
+      },
+      "next": "step_6"
+    },
+    {
+      "id": "step_6",
+      "name": "Hot Lead - Add to Priority Follow-up",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "lead_score": "{{total_lead_score}}",
+          "lead_tier": "hot",
+          "lead_source": "inbound_call",
+          "qualification_date": "{{now}}",
+          "budget_range": "{{extracted.budget}}",
+          "timeline": "{{extracted.timeline}}",
+          "decision_maker": "{{extracted.decision_maker}}",
+          "specific_need": "{{extracted.specific_need}}",
+          "industry": "{{extracted.industry}}",
+          "company_size": "{{extracted.company_size}}",
+          "next_action": "demo_booking",
+          "follow_up_priority": "immediate"
+        },
+        "tags": ["hot-lead", "qualified", "demo-ready"]
+      },
+      "next": "step_13"
+    },
+    {
+      "id": "step_7",
+      "name": "Warm Lead - Team Notification",
+      "type": "action",
+      "action": {
+        "type": "send_notification",
+        "channels": [
+          {
+            "type": "email",
+            "recipient": "{{custom_values.sales_team_email}}",
+            "subject": "Warm Lead: {{contact.name}} - Score {{total_lead_score}}",
+            "body": "{{templates.warm_lead_email}}"
+          }
+        ]
+      },
+      "next": "step_8"
+    },
+    {
+      "id": "step_8",
+      "name": "Warm Lead - Send Educational Content",
+      "type": "action",
+      "action": {
+        "type": "send_email",
+        "recipient": "{{contact.email}}",
+        "subject": "Great talking with you! Here's how AI Voice Agents can transform your business",
+        "template": "warm_lead_nurture_email_1",
+        "attachments": [
+          "{{custom_values.case_study_pdf}}",
+          "{{custom_values.pricing_guide_pdf}}"
+        ]
+      },
+      "next": "step_9"
+    },
+    {
+      "id": "step_9",
+      "name": "Warm Lead - Add to Nurture Sequence",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "lead_score": "{{total_lead_score}}",
+          "lead_tier": "warm",
+          "lead_source": "inbound_call",
+          "qualification_date": "{{now}}",
+          "budget_range": "{{extracted.budget}}",
+          "timeline": "{{extracted.timeline}}",
+          "decision_maker": "{{extracted.decision_maker}}",
+          "specific_need": "{{extracted.specific_need}}",
+          "industry": "{{extracted.industry}}",
+          "company_size": "{{extracted.company_size}}",
+          "next_action": "nurture_sequence",
+          "follow_up_priority": "medium"
+        },
+        "tags": ["warm-lead", "qualified", "nurturing"],
+        "campaigns": ["warm-lead-nurture-sequence"]
+      },
+      "next": "step_13"
+    },
+    {
+      "id": "step_10",
+      "name": "Cold Lead - Log for Long-term Nurture",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "lead_score": "{{total_lead_score}}",
+          "lead_tier": "cold",
+          "lead_source": "inbound_call",
+          "qualification_date": "{{now}}",
+          "budget_range": "{{extracted.budget}}",
+          "timeline": "{{extracted.timeline}}",
+          "decision_maker": "{{extracted.decision_maker}}",
+          "specific_need": "{{extracted.specific_need}}",
+          "industry": "{{extracted.industry}}",
+          "company_size": "{{extracted.company_size}}",
+          "next_action": "long_term_nurture",
+          "follow_up_priority": "low"
+        },
+        "tags": ["cold-lead", "long-term-nurture"]
+      },
+      "next": "step_11"
+    },
+    {
+      "id": "step_11",
+      "name": "Cold Lead - Add to Newsletter",
+      "type": "action",
+      "action": {
+        "type": "add_to_campaign",
+        "campaign": "monthly-newsletter",
+        "send_welcome_email": true
+      },
+      "next": "step_12"
+    },
+    {
+      "id": "step_12",
+      "name": "Cold Lead - Schedule Future Check-in",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "Check-in with {{contact.name}} - Cold Lead Follow-up",
+          "description": "Low-priority lead from {{call.timestamp}}. Check if circumstances have changed.\n\nOriginal Need: {{extracted.specific_need}}\nTimeline was: {{extracted.timeline}}",
+          "due_date": "{{now + 90 days}}",
+          "assigned_to": "{{custom_values.sales_team_email}}",
+          "priority": "low"
+        }
+      },
+      "next": "step_13"
+    },
+    {
+      "id": "step_13",
+      "name": "Create Qualification Report",
+      "type": "action",
+      "action": {
+        "type": "create_note",
+        "note_template": {
+          "title": "Lead Qualification Report - {{contact.name}}",
+          "body": "**Lead Qualification Summary**\n\n**Contact:** {{contact.name}}\n**Phone:** {{contact.phone}}\n**Email:** {{contact.email}}\n\n**Lead Score:** {{total_lead_score}}/100\n**Lead Tier:** {{lead_tier}}\n\n**Scoring Breakdown:**\n- Budget: {{extracted.budget}} ({{settings.scoring_criteria.budget[extracted.budget].points}} pts)\n- Timeline: {{extracted.timeline}} ({{settings.scoring_criteria.timeline[extracted.timeline].points}} pts)\n- Decision Maker: {{extracted.decision_maker}} ({{settings.scoring_criteria.decision_maker[extracted.decision_maker].points}} pts)\n- Business Type: {{extracted.business_type}} ({{settings.scoring_criteria.business_type[extracted.business_type].points}} pts)\n- Need Clarity: {{settings.scoring_criteria.specific_need[extracted.specific_need].points}} pts\n\n**Business Details:**\n- Industry: {{extracted.industry}}\n- Company Size: {{extracted.company_size}} employees\n- Current Solution: {{extracted.current_solution}}\n\n**Specific Need:**\n{{extracted.specific_need}}\n\n**Next Action:** {{contact.next_action}}\n**Priority:** {{contact.follow_up_priority}}"
+        }
+      },
+      "next": "step_14"
+    },
+    {
+      "id": "step_14",
+      "name": "Complete Qualification",
+      "type": "action",
+      "action": {
+        "type": "complete",
+        "status": "success",
+        "summary": "Lead {{contact.name}} qualified as {{lead_tier}} with score {{total_lead_score}}"
+      }
+    }
+  ],
+  "custom_values": {
+    "sales_team_phone": "+18653463339",
+    "sales_team_email": "sales@captclient.com",
+    "booking_link": "https://captclient.com/book-demo",
+    "case_study_pdf": "https://captclient.com/assets/case-studies.pdf",
+    "pricing_guide_pdf": "https://captclient.com/assets/pricing-guide.pdf"
+  },
+  "templates": {
+    "hot_lead_email": "Subject: 🔥 Hot Lead Alert - Immediate Action Required\n\nTeam,\n\nWe just received a high-quality lead that needs immediate attention!\n\n**Contact Details:**\nName: {{contact.name}}\nPhone: {{contact.phone}}\nEmail: {{contact.email}}\nCompany: {{contact.company}}\n\n**Lead Score: {{total_lead_score}}/100**\n\n**Key Details:**\n- Budget: ${{extracted.budget}}\n- Timeline: {{extracted.timeline}}\n- Decision Maker: {{extracted.decision_maker}}\n- Industry: {{extracted.industry}}\n- Company Size: {{extracted.company_size}}\n\n**Their Need:**\n{{extracted.specific_need}}\n\n**Action Required:**\n1. Call within 15 minutes: {{contact.phone}}\n2. Book demo immediately\n3. Update CRM with call notes\n\n**Call Summary:**\n{{call.summary}}\n\nGo get 'em!\n\nAutomatically generated by Capture Client AI System",
+    "hot_lead_slack": "🔥 **HOT LEAD ALERT** 🔥\n\n**{{contact.name}}** | Score: {{total_lead_score}}/100\n📞 {{contact.phone}}\n💰 Budget: ${{extracted.budget}}\n⏰ Timeline: {{extracted.timeline}}\n\n**Need:** {{extracted.specific_need}}\n\n🚨 *ACTION REQUIRED: Call within 15 minutes!*",
+    "warm_lead_email": "Subject: New Qualified Lead - {{contact.name}}\n\nTeam,\n\nWe have a new warm lead that shows good potential.\n\n**Contact Details:**\nName: {{contact.name}}\nPhone: {{contact.phone}}\nEmail: {{contact.email}}\n\n**Lead Score: {{total_lead_score}}/100**\n\n**Details:**\n- Budget: {{extracted.budget}}\n- Timeline: {{extracted.timeline}}\n- Industry: {{extracted.industry}}\n- Need: {{extracted.specific_need}}\n\n**Next Steps:**\n- Added to warm lead nurture sequence\n- Follow up within 48 hours\n- Educational content sent\n\nView full details in CRM."
+  },
+  "analytics": {
+    "track_events": [
+      "lead_qualified",
+      "score_calculated",
+      "tier_assigned",
+      "notification_sent",
+      "campaign_added"
+    ]
+  }
+}

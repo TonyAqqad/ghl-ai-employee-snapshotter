@@ -1,0 +1,174 @@
+{
+  "workflowName": "Re-engagement Sequence",
+  "workflowId": "cc-reengagement-sequence-001",
+  "description": "Win-back sequence for inactive leads and cold prospects",
+  "version": "1.0",
+  "trigger": {
+    "type": "multiple",
+    "conditions": [
+      {
+        "field": "last_engagement",
+        "operator": "greater_than",
+        "value": "30_days"
+      },
+      {
+        "field": "tags",
+        "operator": "contains_any",
+        "value": ["cold_lead", "inactive", "proposal_declined", "demo_no_show"]
+      },
+      {
+        "field": "customer_status",
+        "operator": "not_equals",
+        "value": "active"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "reengage-001",
+      "stepName": "We Miss You Email",
+      "type": "email",
+      "delay": 0,
+      "delayUnit": "minutes",
+      "subject": "We Miss You - What Happened?",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "reengage-email-01",
+      "preheader": "Let's reconnect and see how we can help",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "It's been a while since we last connected.\n\nI wanted to reach out personally because I'm genuinely curious: what happened?\n\nWhen we first talked, you seemed interested in:\n- Automating your lead generation\n- Improving response times\n- Scaling without more staff\n- Increasing conversion rates\n\nDid something change?\n\nI'M NOT HERE TO SELL:\n\nI'm reaching out because:\n\n1. We may have missed something in our initial conversation\n2. Your situation may have changed\n3. We've added new features that might be relevant\n4. I want to understand what we could have done better\n\nWHAT'S CHANGED SINCE WE LAST TALKED:\n\nA lot has happened at Capture Client:\n\n✓ New affordable starter packages (from $999/month)\n✓ Even faster setup (now 24-48 hours)\n✓ Expanded CRM capabilities\n✓ Multi-language support\n✓ Enhanced analytics dashboard\n✓ 500+ businesses now served (was 300+ when we talked)\n\nCOMMON REASONS FOR NOT MOVING FORWARD:\n\n\"Not the right time\"\n- Has timing improved?\n- What would make it the right time?\n\n\"Budget concerns\"\n- We've added more affordable options\n- Most clients see 3-5x ROI within 90 days\n- Month-to-month, no long-term commitment\n\n\"Need to think about it\"\n- What specific concerns can I address?\n- Would another demo help?\n\n\"Went with another solution\"\n- How's that working out?\n- Many clients come to us after trying alternatives\n\n\"Just not interested anymore\"\n- Totally fair! Mind sharing why?\n- Your feedback helps us improve\n\nTHE INDUSTRY IS MOVING FAST:\n\nSince we last talked:\n- 73% more businesses are using AI Voice Agents\n- Average lead response time has dropped 80%\n- Companies without AI automation are losing market share\n\nThe question isn't \"if\" you'll adopt AI, it's \"when.\"\n\nWill it be before or after your competitors?\n\nNO PRESSURE, JUST CHECKING IN:\n\nI'd genuinely love to reconnect and understand where you're at.\n\nEven if you're not interested in Capture Client, maybe I can help in another way:\n- Share best practices\n- Recommend other solutions\n- Provide industry insights\n- Just chat about lead generation challenges\n\n15 minutes?",
+        "cta": "Let's Reconnect",
+        "ctaUrl": "{{calendar_link}}",
+        "secondaryCta": "Not Interested (Remove Me)",
+        "secondaryCtaUrl": "mailto:team@captureclient.net?subject=Please remove me from your list",
+        "signature": "Hoping to hear from you,\n\nThe Capture Client Team\nteam@captureclient.net"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "reengage-002",
+      "stepName": "New Features Announcement",
+      "type": "email",
+      "delay": 7,
+      "delayUnit": "days",
+      "conditions": [
+        {
+          "field": "email_opened",
+          "operator": "equals",
+          "value": "reengage-001"
+        }
+      ],
+      "subject": "NEW: AI Voice Agents Now Starting at $999/Month",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "reengage-email-02",
+      "preheader": "More affordable, more powerful, easier than ever",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Big news! We've completely revamped our pricing and packages based on customer feedback.\n\nIf pricing was a concern before, you'll want to see this.\n\nNEW STARTER PACKAGE: $999/MONTH\n\nPerfect for businesses that want to test AI Voice Agents without a huge commitment:\n\n✓ 1 AI Voice Agent\n✓ 500 calls/month\n✓ Basic CRM included\n✓ 24-48 hour setup\n✓ Email & chat support\n✓ Month-to-month (cancel anytime)\n✓ 30-day money-back guarantee\n\nThat's LESS than the cost of:\n- 1 part-time employee ($2,000+/month)\n- Missed opportunities from slow follow-up\n- Poor lead qualification\n- After-hours missed calls\n\nNEW FEATURES (ALL PACKAGES):\n\n1. SMART SCHEDULING:\n- AI suggests optimal appointment times\n- Reduces no-shows by 40%\n- Automatic reminders\n\n2. SENTIMENT ANALYSIS:\n- Detects lead interest level\n- Prioritizes hot leads\n- Flags concerns for follow-up\n\n3. MULTI-LANGUAGE SUPPORT:\n- Spanish, French, Mandarin, and more\n- Expands your market reach\n- Natural accent and dialect handling\n\n4. ADVANCED ANALYTICS:\n- Conversion funnel visualization\n- Lead source performance\n- ROI tracking\n- Custom reporting\n\n5. ENHANCED INTEGRATIONS:\n- Zapier connectivity (5,000+ apps)\n- Native Slack notifications\n- Advanced CRM features\n- Payment processing\n\nSUCCESS STORY:\n\nA marketing agency in Nashville started with our $999 package.\n\nMonth 1 Results:\n- 247 calls handled\n- 89 qualified leads\n- 34 appointments booked\n- $18,400 in new business\n\nROI: 1,743%\n\nThey upgraded to our Growth package in Month 2.\n\nWHY NOW?\n\nQ4 is the perfect time to implement AI automation:\n- Test during busy season\n- Optimize before Q1 (traditionally slowest)\n- Start the new year with a competitive advantage\n- Tax deduction for 2024 expenses\n\nLIMITED TIME OFFER:\n\nFor reactivated leads only:\n\n🎁 SETUP FEE WAIVED ($500 value)\n🎁 MONTH 1: 50% OFF (save $500+)\n🎁 FREE CRM for 90 days ($591 value)\n🎁 Priority onboarding\n\nTotal value: $1,591 in savings\n\nOffer expires: {{offer_expiry_date}}\n\nQUALIFY FOR THIS OFFER:",
+        "cta": "Book Your Discovery Call",
+        "ctaUrl": "{{calendar_link}}?offer=reactivation",
+        "secondaryCta": "View New Pricing",
+        "secondaryCtaUrl": "{{pricing_page_link}}",
+        "additionalInfo": "RISK-FREE TRIAL:\n\nNot sure if it'll work for your business?\n\nHere's our guarantee:\n\nMonth 1: We set everything up and optimize\nMonth 2: You evaluate results\nMonth 3: If you're not seeing ROI, we refund EVERYTHING\n\nNo risk, all reward.\n\nSTILL HAVE QUESTIONS?\n\nCommon concerns we hear:\n\n\"What if leads don't like talking to AI?\"\n→ 94% of leads rate our AI positively\n→ They appreciate 24/7 availability\n→ Younger demographics prefer AI interaction\n\n\"What if it doesn't understand my industry?\"\n→ We train on YOUR scripts, YOUR services\n→ 500+ businesses across 20+ industries\n→ Custom configuration for your needs\n\n\"What if I need to cancel?\"\n→ Month-to-month, cancel anytime\n→ No penalties, no fees\n→ 30-day money-back guarantee\n\nREADY TO REVISIT?",
+        "signature": "Let's make this happen,\n\nThe Capture Client Team"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "reengage-003",
+      "stepName": "Special Reactivation Offer",
+      "type": "email",
+      "delay": 14,
+      "delayUnit": "days",
+      "subject": "EXCLUSIVE: 50% Off Month 1 + Setup Fee Waived",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "reengage-email-03",
+      "preheader": "Our best offer ever - expires in 72 hours",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "I'm reaching out one final time with our most aggressive offer ever.\n\nThis is exclusively for past prospects who didn't move forward initially.\n\nTHE OFFER:\n\n✅ 50% OFF MONTH 1 (Save $500-$1,098)\n✅ Setup fee waived (Save $500)\n✅ 3 months FREE CRM (Save $591)\n✅ Priority 24-hour setup\n✅ Extended 60-day money-back guarantee\n\nTOTAL VALUE: $1,591-$2,189 in savings\n\nWHY SUCH A GOOD OFFER?\n\nHonestly? We want to earn back your consideration.\n\nWhen prospects don't move forward, it's usually because:\n1. We didn't communicate value clearly enough\n2. Timing wasn't right\n3. Budget was a concern\n\nThis offer addresses all three:\n\nVALUE: You've seen what we do\nTIMING: Now includes extended guarantee\nBUDGET: 50% off makes it more accessible\n\nHERE'S THE DEAL:\n\nSTARTER PACKAGE:\nRegular: $999/month\nYour Price: $499 Month 1, then $999\nSavings: $1,591 total\n\nGROWTH PACKAGE (Most Popular):\nRegular: $1,497/month\nYour Price: $748 Month 1, then $1,497\nSavings: $1,840 total\n\nENTERPRISE PACKAGE:\nRegular: $2,195/month\nYour Price: $1,098 Month 1, then $2,195\nSavings: $2,189 total\n\nALL PACKAGES INCLUDE:\n- 60-day money-back guarantee (extended from 30)\n- Free CRM for 90 days\n- Setup fee waived\n- Priority onboarding (24-48 hours)\n- Unlimited optimization\n- 24/7 support\n\nTHE CATCH?\n\nYou must:\n1. Book a call by {{deadline_date}}\n2. Start onboarding by {{start_date}}\n3. Be willing to provide a testimonial if successful\n\nThat's it.\n\nWHAT HAPPENS NEXT:\n\n1. Book your discovery call (15 minutes)\n2. We'll confirm you qualify for this offer\n3. Choose your package\n4. Go live in 24-48 hours\n5. Start capturing leads!\n\nSIMPLE ROI MATH:\n\nYour Month 1 investment: $499 (Starter package)\n\nIf you close just 2 additional clients:\n- Average client value: $1,000\n- Revenue from 2 clients: $2,000\n- Your cost: $499\n- Profit: $1,501\n- ROI: 301%\n\nAnd that's just Month 1.\n\nWHAT IF IT DOESN'T WORK?\n\n60-day money-back guarantee means:\n- Try it for Month 1 ($499)\n- Evaluate through Month 2\n- If not satisfied, full refund\n- Including setup and CRM costs\n\nYou risk $499 for 30 days.\nWe risk $1,591 in value delivered.\n\nWe're betting on ourselves. Will you?\n\nTHIS EXPIRES IN 72 HOURS:\n\nAfter {{expiry_date}}, this offer disappears forever.\n\nI can't extend it. Our management has been crystal clear about that.\n\n72 hours. That's it.",
+        "cta": "Claim Your 50% Discount",
+        "ctaUrl": "{{calendar_link}}?offer=reactivation-50",
+        "secondaryCta": "See Offer Details",
+        "secondaryCtaUrl": "{{offer_page_link}}",
+        "additionalInfo": "LAST QUESTIONS:\n\n\"Why should I trust this offer?\"\n→ We have 500+ active clients with 4.9/5 rating\n→ Better Business Bureau A+ rating\n→ Transparent pricing, no hidden fees\n→ 60-day guarantee protects you\n\n\"What if I'm still not ready?\"\n→ That's okay! Just let me know\n→ Reply \"Not interested\" and we'll stop reaching out\n→ We respect your decision\n\n\"Can I think about it?\"\n→ Absolutely, but the offer expires in 72 hours\n→ After that, regular pricing applies\n→ We can't make exceptions\n\nFINAL THOUGHTS:\n\nEvery day without AI automation, you're:\n- Losing leads to competitors with faster response\n- Paying staff for repetitive qualification calls\n- Missing after-hours opportunities\n- Leaving money on the table\n\nThe cost of inaction is higher than $499.\n\nLet's do this.",
+        "signature": "Ready when you are,\n\nThe Capture Client Team\nteam@captureclient.net\n\nP.S. This is genuinely our final outreach. If you're not interested, reply \"No thanks\" and I'll make sure you don't hear from us again. We respect your time and inbox."
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      },
+      "actions": [
+        {
+          "type": "flag_for_manual_review",
+          "reason": "final_reactivation_attempt"
+        }
+      ]
+    }
+  ],
+  "exitConditions": [
+    {
+      "type": "tag_added",
+      "value": "demo_booked"
+    },
+    {
+      "type": "tag_added",
+      "value": "customer"
+    },
+    {
+      "type": "tag_added",
+      "value": "unsubscribed"
+    },
+    {
+      "type": "reply_contains",
+      "value": ["not interested", "no thanks", "remove me", "unsubscribe"]
+    }
+  ],
+  "postSequenceActions": [
+    {
+      "condition": "no_response",
+      "action": "add_tag",
+      "value": "cold_archived"
+    },
+    {
+      "condition": "no_response",
+      "action": "remove_from_active_sequences"
+    },
+    {
+      "condition": "negative_reply",
+      "action": "add_tag",
+      "value": "not_interested"
+    },
+    {
+      "condition": "negative_reply",
+      "action": "suppress_from_marketing"
+    }
+  ],
+  "analytics": {
+    "trackConversions": true,
+    "conversionGoals": [
+      "reengagement_call_booked",
+      "offer_accepted",
+      "customer_reactivated"
+    ],
+    "reportingInterval": "weekly",
+    "compareMetrics": {
+      "baseline": "initial_sequence_performance"
+    }
+  }
+}

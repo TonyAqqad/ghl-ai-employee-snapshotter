@@ -1,0 +1,206 @@
+{
+  "workflowName": "Demo Confirmation & Reminder Sequence",
+  "workflowId": "cc-demo-sequence-001",
+  "description": "Automated demo confirmation and reminder emails with post-demo follow-up",
+  "version": "1.0",
+  "trigger": {
+    "type": "appointment_booked",
+    "conditions": [
+      {
+        "field": "appointment_type",
+        "operator": "equals",
+        "value": "demo"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "demo-001",
+      "stepName": "Demo Confirmation Email",
+      "type": "email",
+      "delay": 0,
+      "delayUnit": "minutes",
+      "subject": "Your AI Voice Agent Demo is Confirmed - {{appointment.date}}",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "demo-email-01",
+      "preheader": "We're excited to show you how AI can transform your business",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Great news! Your AI Voice Agent demo is confirmed.\n\nDEMO DETAILS:\nDate: {{appointment.date}}\nTime: {{appointment.time}} {{appointment.timezone}}\nDuration: 30 minutes\nMeeting Link: {{appointment.meeting_link}}\n\nWHAT TO EXPECT:\nDuring your demo, we'll:\n1. Show you our AI Voice Agent in action (live calls)\n2. Discuss your specific lead generation challenges\n3. Explain how we'd customize the system for your business\n4. Answer all your questions\n5. Provide a custom pricing proposal (if you're ready)\n\nTO GET THE MOST VALUE:\nPlease have ready:\n- Current lead volume and sources\n- Your qualification criteria\n- Integration requirements (CRM, phone system)\n- Any specific questions or concerns\n\nCALENDAR INVITE:\nA calendar invite has been sent to {{contact.email}}\n\nNEED TO RESCHEDULE?\nNo problem! Use this link: {{reschedule_link}}\n\nWant to come prepared? Watch this 3-minute overview:",
+        "cta": "Watch Pre-Demo Video",
+        "ctaUrl": "{{overview_video_link}}",
+        "secondaryCta": "Add to Calendar",
+        "secondaryCtaUrl": "{{calendar_file_link}}",
+        "signature": "Looking forward to meeting you!\n\nThe Capture Client Team\nKnoxville, TN\nteam@captureclient.net"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      },
+      "actions": [
+        {
+          "type": "add_tag",
+          "value": "demo_confirmed"
+        },
+        {
+          "type": "send_calendar_invite",
+          "details": "{{appointment.details}}"
+        }
+      ]
+    },
+    {
+      "stepId": "demo-002",
+      "stepName": "24-Hour Reminder",
+      "type": "email",
+      "delay": "{{appointment.time_minus_24_hours}}",
+      "delayUnit": "absolute",
+      "conditions": [
+        {
+          "field": "appointment_status",
+          "operator": "equals",
+          "value": "confirmed"
+        }
+      ],
+      "subject": "Reminder: Your Demo Tomorrow at {{appointment.time}}",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "demo-email-02",
+      "preheader": "Everything you need for tomorrow's demo",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "This is a friendly reminder about your AI Voice Agent demo tomorrow.\n\nDEMO DETAILS:\nTomorrow: {{appointment.date}}\nTime: {{appointment.time}} {{appointment.timezone}}\nMeeting Link: {{appointment.meeting_link}}\n\nPREP CHECKLIST:\n✓ Test your audio/video (if video demo)\n✓ Review your current lead flow process\n✓ List your top 3 lead generation challenges\n✓ Think about your ideal outcome\n✓ Prepare any questions\n\nWHAT YOU'LL SEE:\n- Live AI Voice Agent demonstrations\n- Real call recordings and transcriptions\n- Custom implementation roadmap\n- Pricing tailored to your needs\n- ROI calculator for your business\n\nQUESTIONS BEFORE WE MEET?\nReply to this email or call: {{phone_number}}\n\nNEED TO RESCHEDULE?\n{{reschedule_link}}\n\nSee you tomorrow!",
+        "cta": "Join Meeting Tomorrow",
+        "ctaUrl": "{{appointment.meeting_link}}",
+        "signature": "The Capture Client Team"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "demo-003",
+      "stepName": "1-Hour Reminder",
+      "type": "email",
+      "delay": "{{appointment.time_minus_1_hour}}",
+      "delayUnit": "absolute",
+      "conditions": [
+        {
+          "field": "appointment_status",
+          "operator": "equals",
+          "value": "confirmed"
+        }
+      ],
+      "subject": "Starting in 1 Hour: Your AI Voice Agent Demo",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "demo-email-03",
+      "preheader": "Your meeting link is ready",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Your demo starts in 1 hour!\n\nQuick reminder:\nTime: {{appointment.time}} {{appointment.timezone}}\nDuration: 30 minutes\n\nONE-CLICK JOIN:",
+        "cta": "Join Demo Now",
+        "ctaUrl": "{{appointment.meeting_link}}",
+        "additionalInfo": "TECHNICAL CHECK:\n- Camera & microphone working?\n- Quiet location ready?\n- Notepad for questions?\n\nRunning late? No problem - just let us know.\n\nSee you soon!",
+        "signature": "The Capture Client Team"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      },
+      "actions": [
+        {
+          "type": "send_sms_reminder",
+          "message": "Hi {{contact.first_name}}, your Capture Client demo starts in 1 hour. Join here: {{appointment.meeting_link}}"
+        }
+      ]
+    },
+    {
+      "stepId": "demo-004",
+      "stepName": "Post-Demo Thank You",
+      "type": "email",
+      "delay": 1,
+      "delayUnit": "hours",
+      "conditions": [
+        {
+          "field": "appointment_status",
+          "operator": "equals",
+          "value": "completed"
+        }
+      ],
+      "subject": "Thanks for Your Time + Next Steps",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "demo-email-04",
+      "preheader": "Your custom proposal and resources",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Thank you for taking the time to meet with us today!\n\nIt was great learning about {{contact.company}} and how we can help automate your lead generation.\n\nAS PROMISED:\nHere's your custom proposal: {{proposal_link}}\n\nTHIS INCLUDES:\n- Recommended package for your needs\n- Custom pricing breakdown\n- Implementation timeline\n- Expected ROI calculation\n- Integration details\n\nNEXT STEPS:\n\n1. REVIEW YOUR PROPOSAL\nTake your time reviewing the details. Everything is customized based on our conversation.\n\n2. QUESTIONS?\nI'm here to help! Reply to this email or schedule another call: {{calendar_link}}\n\n3. READY TO START?\nClick below to accept the proposal and we'll have you live in 48 hours.\n\nADDITIONAL RESOURCES:\n- Case Study: [Similar Company Success Story]\n- FAQ Document: {{faq_link}}\n- ROI Calculator: {{calculator_link}}\n- Customer Testimonials: {{testimonials_link}}\n\nREMEMBER:\n- 30-day money-back guarantee\n- 48-hour setup time\n- No long-term contracts\n- Full support included\n\nOUR OFFER:\nIf you get started this week, we'll include:\n- Setup fee waived ($500 value)\n- First month CRM free ($197 value)\n- Priority onboarding\n\nOffer valid until: {{offer_expiry_date}}\n\nWhat questions can I answer?",
+        "cta": "Review Your Proposal",
+        "ctaUrl": "{{proposal_link}}",
+        "secondaryCta": "Schedule Follow-Up Call",
+        "secondaryCtaUrl": "{{calendar_link}}",
+        "signature": "Thanks again,\n\nThe Capture Client Team\nteam@captureclient.net\n{{phone_number}}"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      },
+      "actions": [
+        {
+          "type": "add_tag",
+          "value": "demo_completed"
+        },
+        {
+          "type": "add_tag",
+          "value": "proposal_sent"
+        },
+        {
+          "type": "trigger_workflow",
+          "workflowId": "cc-proposal-followup-001"
+        }
+      ]
+    }
+  ],
+  "exitConditions": [
+    {
+      "type": "appointment_cancelled"
+    },
+    {
+      "type": "tag_added",
+      "value": "customer"
+    },
+    {
+      "type": "tag_added",
+      "value": "unsubscribed"
+    }
+  ],
+  "failureHandling": {
+    "noShow": {
+      "action": "send_email",
+      "templateId": "demo-noshow-email",
+      "delay": 30,
+      "delayUnit": "minutes",
+      "subject": "We Missed You - Let's Reschedule",
+      "rescheduleLink": "{{reschedule_link}}"
+    }
+  },
+  "analytics": {
+    "trackConversions": true,
+    "conversionGoals": [
+      "demo_attended",
+      "proposal_viewed",
+      "proposal_accepted"
+    ],
+    "reportingInterval": "daily"
+  }
+}

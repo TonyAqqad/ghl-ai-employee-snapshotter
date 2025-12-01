@@ -1,0 +1,377 @@
+{
+  "workflowId": "lead-nurture-sequence-001",
+  "workflowName": "Lead Nurture Sequence",
+  "version": "1.0.0",
+  "status": "active",
+  "description": "Multi-touch nurture sequences for warm leads (3 touches over 2 weeks) and cold leads (monthly check-ins)",
+
+  "trigger": {
+    "type": "multiple",
+    "conditions": [
+      "Lead showed interest but didn't book demo",
+      "Demo completed but no commitment",
+      "Manually added to nurture sequence",
+      "Cold lead reactivation",
+      "Post-new-lead-sequence transition"
+    ]
+  },
+
+  "objectives": [
+    "Keep brand top-of-mind without being pushy",
+    "Provide ongoing value through education",
+    "Identify when timing becomes right",
+    "Re-engage cold prospects",
+    "Move leads closer to buying decision"
+  ],
+
+  "segmentation": {
+    "warm_lead": {
+      "definition": "Engaged in last 7-30 days, showed interest, not ready yet",
+      "sequenceType": "3-touch-2-weeks",
+      "priority": "high"
+    },
+    "cold_lead": {
+      "definition": "No engagement in 30+ days or marked as 'not now'",
+      "sequenceType": "monthly-check-in",
+      "priority": "medium"
+    },
+    "lost_opportunity": {
+      "definition": "Chose competitor or explicitly said no",
+      "sequenceType": "win-back",
+      "priority": "low"
+    }
+  },
+
+  "warmLeadSequence": {
+    "name": "Warm Lead 3-Touch Over 2 Weeks",
+    "duration": "14 days",
+    "touchpoints": 3,
+
+    "sequence": [
+      {
+        "step": 1,
+        "name": "Value-First Check-in",
+        "delay": "0 days",
+        "type": "sms",
+        "message": "Hey {{first_name}}! 👋\n\nJust wanted to share a quick stat I thought you'd find interesting:\n\nBusinesses using AI voice agents see an average 47% increase in qualified leads booked. The secret? Instant response time, 24/7.\n\nHow are you currently handling after-hours calls at {{business_name}}?",
+        "waitForResponse": true,
+        "goal": "re-engage with value, not sales pitch"
+      },
+
+      {
+        "step": 2,
+        "name": "Case Study Share",
+        "delay": "5 days",
+        "type": "sms",
+        "condition": "if_no_negative_response",
+        "message": "{{first_name}}, thought you might like this case study:\n\nA {{industry}} company similar to yours went from 18 to 52 appointments/month in 60 days using our AI agent.\n\nTheir biggest challenge? {{common_pain_point}}\n\nSound familiar? Want me to send you the full breakdown?",
+        "waitForResponse": true,
+        "goal": "show concrete results"
+      },
+
+      {
+        "step": 3,
+        "name": "Soft CTA",
+        "delay": "12 days",
+        "type": "sms",
+        "condition": "if_engaged_with_step2",
+        "message": "Hey {{first_name}}, I don't want to be that pushy sales person! 😊\n\nBut I do want to make sure you have what you need to make the right decision for {{business_name}}.\n\nWant to hop on a quick 10-min call this week? No pressure - just happy to answer questions!\n\nOr if timing still isn't right, totally understand. Just let me know!",
+        "waitForResponse": true,
+        "goal": "gauge readiness, offer help"
+      },
+
+      {
+        "step": 4,
+        "name": "Transition Decision",
+        "delay": "14 days",
+        "type": "conditional_routing",
+        "conditions": {
+          "if_engaged_positively": {
+            "action": "escalate_to_sales",
+            "tag": "warm-lead-re-engaged"
+          },
+          "if_not_ready": {
+            "action": "move_to_cold_sequence",
+            "tag": "moved-to-cold-nurture"
+          },
+          "if_no_response": {
+            "action": "move_to_cold_sequence",
+            "tag": "non-responsive"
+          }
+        }
+      }
+    ]
+  },
+
+  "coldLeadSequence": {
+    "name": "Cold Lead Monthly Check-ins",
+    "duration": "ongoing",
+    "frequency": "monthly",
+
+    "sequence": [
+      {
+        "step": 1,
+        "name": "Month 1 - New Feature/Update",
+        "delay": "0 days",
+        "type": "sms",
+        "message": "Hey {{first_name}}! It's been a while since we chatted about AI voice agents.\n\nWe just rolled out {{new_feature}} that's getting amazing results for {{industry}} businesses.\n\nThought it might be worth a quick look if your needs have changed. Still on your radar, or did you find another solution?",
+        "waitForResponse": true
+      },
+
+      {
+        "step": 2,
+        "name": "Month 2 - Industry Insight",
+        "delay": "30 days",
+        "type": "sms",
+        "condition": "if_no_negative_response",
+        "message": "{{first_name}}, interesting trend in the {{industry}} space:\n\n{{industry_insight}}\n\nCompanies that adapt early see 2-3x better results. Just wanted to make sure you were aware!\n\nEver want to discuss how this applies to {{business_name}}, I'm here.",
+        "waitForResponse": true
+      },
+
+      {
+        "step": 3,
+        "name": "Month 3 - ROI Calculator",
+        "delay": "60 days",
+        "type": "sms",
+        "condition": "if_still_subscribed",
+        "message": "Quick question, {{first_name}}: Have you calculated how much revenue you're losing from missed/delayed responses?\n\nWe built a simple calculator that shows the real cost. Most businesses are shocked.\n\nWant me to send it over? Takes 2 minutes to fill out.",
+        "waitForResponse": true
+      },
+
+      {
+        "step": 4,
+        "name": "Month 4 - Social Proof",
+        "delay": "90 days",
+        "type": "sms",
+        "condition": "if_still_subscribed",
+        "message": "Hey {{first_name}}! Quick update - we just hit {{milestone}} ({{number}} businesses now using our AI agents).\n\nThe #1 thing they all say? 'Wish I'd done this sooner.'\n\nStill thinking about it for {{business_name}}? Or has timing changed?",
+        "waitForResponse": true
+      },
+
+      {
+        "step": 5,
+        "name": "Month 5 - Limited Offer",
+        "delay": "120 days",
+        "type": "sms",
+        "condition": "if_still_subscribed",
+        "message": "{{first_name}}, don't usually do this, but we have a special offer this month:\n\n{{special_offer}}\n\nThought of you since we'd talked before. Worth a conversation? If not, no worries - I'll check back next quarter!",
+        "waitForResponse": true
+      },
+
+      {
+        "step": 6,
+        "name": "Month 6 - Final Check-in",
+        "delay": "150 days",
+        "type": "sms",
+        "condition": "if_no_meaningful_engagement",
+        "message": "Hey {{first_name}}, just wanted to check in one last time.\n\nIf AI voice agents aren't a fit for {{business_name}} right now, I totally get it. \n\nShould I:\n1️⃣ Remove you from follow-ups\n2️⃣ Check back in 6 months\n3️⃣ Keep you on quarterly updates\n\nJust reply with a number. Thanks for your time!",
+        "waitForResponse": true,
+        "criticalDecisionPoint": true
+      }
+    ]
+  },
+
+  "reEngagementTriggers": {
+    "behavioralSignals": [
+      {
+        "trigger": "email_opened",
+        "action": "send_sms_within_24_hours",
+        "message": "Hey {{first_name}}! Saw you opened our email about {{topic}}. Any questions? Happy to chat!"
+      },
+      {
+        "trigger": "website_visit",
+        "action": "send_sms_same_day",
+        "message": "{{first_name}}, noticed you were checking out {{page_visited}} on our site. Researching options? Let me know if I can help!"
+      },
+      {
+        "trigger": "link_clicked",
+        "action": "send_sms_within_1_hour",
+        "message": "Hope that {{content_type}} was helpful, {{first_name}}! Have any questions about {{topic}}? Just reply here!"
+      },
+      {
+        "trigger": "social_media_engagement",
+        "action": "send_sms_within_48_hours",
+        "message": "Hey {{first_name}}! Saw you engaging with our content on {{platform}}. Glad you're finding it useful! What topics would you like to see more of?"
+      }
+    ]
+  },
+
+  "contentLibrary": {
+    "industryInsights": [
+      {
+        "industry": "home_services",
+        "insight": "Home service businesses that respond within 5 minutes are 4x more likely to book the job"
+      },
+      {
+        "industry": "healthcare",
+        "insight": "67% of patients expect 24/7 appointment booking - AI handles this without adding staff"
+      },
+      {
+        "industry": "real_estate",
+        "insight": "78% of home buyers work with the first agent who responds. Speed = revenue."
+      },
+      {
+        "industry": "automotive",
+        "insight": "Dealerships using AI for lead response see 40% higher test drive bookings"
+      }
+    ],
+
+    "valueContent": [
+      {
+        "type": "tip",
+        "message": "Quick tip: Most businesses lose 30% of leads due to slow response. Track your response time this week - you might be shocked!"
+      },
+      {
+        "type": "statistic",
+        "message": "78% of customers buy from the company that responds first. That's why AI agents are game-changers - instant response, every time."
+      },
+      {
+        "type": "case_study_teaser",
+        "message": "Just wrapped a case study: {{industry}} company doubled their booked appointments using AI. Want the details?"
+      }
+    ],
+
+    "painPointContent": [
+      {
+        "painPoint": "missed_calls",
+        "message": "How many calls are going to voicemail at {{business_name}} each week? Each one could be a ${{average_deal_value}} opportunity."
+      },
+      {
+        "painPoint": "after_hours",
+        "message": "Quick Q: What % of your leads come in after hours? Most businesses say 40-50%. Are you capturing those?"
+      },
+      {
+        "painPoint": "staff_overwhelmed",
+        "message": "If your team is too busy to follow up with leads properly, you're not alone. AI agents handle the high-volume tasks so your team can focus on closing."
+      }
+    ]
+  },
+
+  "responseHandling": {
+    "positive_engagement": {
+      "keywords": ["yes", "interested", "tell me more", "how much", "let's talk"],
+      "action": "escalate_to_sales_immediately",
+      "message": "Awesome! Let me get you connected with {{sales_rep}} who can give you all the details. What's your availability this week?"
+    },
+
+    "not_ready_yet": {
+      "keywords": ["not now", "maybe later", "timing isn't right", "few months"],
+      "action": "schedule_future_followup",
+      "message": "Totally understand - timing is everything! When should I check back in? 30 days? 60 days? 90 days?"
+    },
+
+    "questions": {
+      "action": "answer_and_gauge_interest",
+      "followUp": "Does that answer your question? And more importantly, is this something you're actively exploring?"
+    },
+
+    "objections": {
+      "cost": "I hear you on budget. Most clients see ROI within 60-90 days because they're capturing leads they used to lose. Want to see the math?",
+      "complexity": "Fair concern! Setup is actually super simple - we handle everything. Most clients are live in under a week. Zero technical knowledge needed.",
+      "not_sure_it_works": "Smart to be skeptical! That's why we offer a demo where you can literally test it yourself. See it in action, then decide. Fair?"
+    },
+
+    "opt_out": {
+      "keywords": ["stop", "unsubscribe", "remove", "don't contact"],
+      "action": "remove_from_sequence",
+      "message": "Got it - you're removed from our follow-ups. Sorry it wasn't a fit. If things change, we're here!"
+    }
+  },
+
+  "intelligentPacing": {
+    "engaged_lead": {
+      "definition": "Responds to 2+ messages",
+      "action": "increase_frequency_to_weekly"
+    },
+    "low_engagement": {
+      "definition": "Opens but doesn't respond",
+      "action": "maintain_monthly_cadence"
+    },
+    "no_engagement": {
+      "definition": "No opens or responses for 60 days",
+      "action": "reduce_to_quarterly_or_remove"
+    }
+  },
+
+  "integrations": {
+    "ghl": {
+      "tags": {
+        "warmNurture": "nurture-warm",
+        "coldNurture": "nurture-cold",
+        "reEngaged": "nurture-re-engaged",
+        "notReady": "nurture-not-ready",
+        "readyForSales": "nurture-ready-for-sales"
+      },
+      "customFields": {
+        "nurtureStage": "nurture_stage",
+        "lastNurtureTouch": "last_nurture_date",
+        "engagementScore": "nurture_engagement_score",
+        "primaryObjection": "nurture_objection",
+        "followUpDate": "next_nurture_date"
+      },
+      "opportunities": true,
+      "pipelineStageUpdate": true
+    }
+  },
+
+  "exitConditions": {
+    "ready_to_buy": {
+      "action": "exit_to_sales_process",
+      "tag": "sales-ready"
+    },
+    "explicitly_not_interested": {
+      "action": "mark_as_lost",
+      "revisitIn": "180 days"
+    },
+    "became_customer": {
+      "action": "exit_to_customer_sequence",
+      "tag": "customer"
+    },
+    "no_engagement_6_months": {
+      "action": "final_removal_message",
+      "archiveContact": true
+    }
+  },
+
+  "personalizationTokens": {
+    "required": [
+      "{{first_name}}",
+      "{{business_name}}"
+    ],
+    "optional": [
+      "{{industry}}",
+      "{{common_pain_point}}",
+      "{{new_feature}}",
+      "{{industry_insight}}",
+      "{{milestone}}",
+      "{{number}}",
+      "{{special_offer}}",
+      "{{topic}}",
+      "{{page_visited}}",
+      "{{content_type}}",
+      "{{platform}}",
+      "{{average_deal_value}}",
+      "{{sales_rep}}"
+    ]
+  },
+
+  "complianceSettings": {
+    "optOutKeywords": ["stop", "unsubscribe", "remove"],
+    "respectDoNotContact": true,
+    "maxMonthlyMessages": 4,
+    "businessHoursPreferred": true
+  },
+
+  "analytics": {
+    "trackMetrics": [
+      "sequence_completion_rate",
+      "engagement_rate_by_segment",
+      "warm_to_sales_conversion",
+      "cold_reactivation_rate",
+      "message_response_rate",
+      "optimal_touch_frequency",
+      "time_to_conversion",
+      "content_performance"
+    ]
+  }
+}

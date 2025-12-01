@@ -1,0 +1,182 @@
+{
+  "workflowName": "New Lead Welcome Sequence",
+  "workflowId": "cc-welcome-sequence-001",
+  "description": "5-email nurture sequence for new leads over 14 days",
+  "version": "1.0",
+  "trigger": {
+    "type": "contact_created",
+    "conditions": [
+      {
+        "field": "tags",
+        "operator": "contains",
+        "value": "new_lead"
+      },
+      {
+        "field": "lead_source",
+        "operator": "exists"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "welcome-001",
+      "stepName": "Welcome Email",
+      "type": "email",
+      "delay": 0,
+      "delayUnit": "minutes",
+      "subject": "Welcome to Capture Client - Let's Automate Your Lead Generation",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "welcome-email-01",
+      "preheader": "Discover how AI Voice Agents can transform your business",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Welcome to Capture Client! We're thrilled you're interested in automating your lead generation with AI Voice Agents.\n\nWe help businesses like yours:\n- Capture and qualify leads 24/7\n- Never miss a follow-up opportunity\n- Scale without hiring more staff\n- Close more deals on autopilot\n\nWith 500+ businesses served and a 4.9/5 rating, we've perfected the art of turning conversations into customers.\n\nOver the next two weeks, I'll share:\n- Real success stories from businesses in your industry\n- How our AI Voice Agents work\n- Pricing and ROI breakdown\n- A special offer just for you\n\nWant to skip ahead and see it in action?",
+        "cta": "Book Your Free Demo",
+        "ctaUrl": "{{calendar_link}}",
+        "signature": "The Capture Client Team\nKnoxville, TN\nteam@captureclient.net"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "welcome-002",
+      "stepName": "Case Study Email",
+      "type": "email",
+      "delay": 2,
+      "delayUnit": "days",
+      "conditions": [
+        {
+          "field": "email_opened",
+          "operator": "equals",
+          "value": "welcome-001",
+          "required": false
+        }
+      ],
+      "subject": "How [Company Name] Doubled Their Lead Response Rate",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "welcome-email-02",
+      "preheader": "Real results from a business just like yours",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "I wanted to share a quick success story that might resonate with you.\n\nLast quarter, a marketing agency in Nashville was struggling with:\n- Leads going cold while waiting for callbacks\n- Sales team overwhelmed with qualification calls\n- Inconsistent follow-up processes\n\nSound familiar?\n\nAfter implementing our AI Voice Agent:\n- Lead response time dropped from 4 hours to 30 seconds\n- Qualified lead volume increased by 67%\n- Sales team focused on closing, not screening\n- Revenue increased by 42% in 90 days\n\nThe best part? Setup took less than 48 hours.\n\nOur AI Voice Agent handles:\n- Initial lead qualification\n- Appointment scheduling\n- FAQ responses\n- Follow-up calls\n- CRM updates\n\nAll with 99% transcription accuracy and natural conversation flow.\n\nCurious how this would work for your business?",
+        "cta": "See a Live Demo",
+        "ctaUrl": "{{calendar_link}}",
+        "signature": "The Capture Client Team"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "welcome-003",
+      "stepName": "How It Works Email",
+      "type": "email",
+      "delay": 5,
+      "delayUnit": "days",
+      "subject": "Here's Exactly How Our AI Voice Agents Work",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "welcome-email-03",
+      "preheader": "Simple setup, powerful results in 48 hours",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "You're probably wondering: 'How does this actually work?'\n\nLet me break it down:\n\nSTEP 1: Quick Discovery Call (20 minutes)\nWe learn about your business, lead flow, and goals.\n\nSTEP 2: Custom AI Training (24-48 hours)\nWe program your AI Voice Agent with:\n- Your services and pricing\n- Your qualification criteria\n- Your scheduling preferences\n- Your brand voice and style\n\nSTEP 3: Integration & Testing\nWe connect to your:\n- Phone system\n- Calendar\n- CRM (we provide one if needed)\n- Lead sources\n\nSTEP 4: Go Live\nYour AI Voice Agent starts:\n- Answering inbound calls\n- Making outbound follow-ups\n- Qualifying leads 24/7\n- Booking appointments automatically\n\nSTEP 5: Optimize & Scale\nWe monitor, refine, and expand based on results.\n\nTHE TECHNOLOGY:\n- 99% call transcription accuracy\n- Natural conversation AI\n- Multi-language support\n- Seamless CRM integration\n- Real-time analytics dashboard\n\nTIME TO VALUE: 48 hours from 'yes' to live\n\nWant to see it in action?",
+        "cta": "Watch a Demo Video",
+        "ctaUrl": "{{demo_video_link}}",
+        "secondaryCta": "Book a Live Demo",
+        "secondaryCtaUrl": "{{calendar_link}}",
+        "signature": "The Capture Client Team"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "welcome-004",
+      "stepName": "Pricing & FAQ Email",
+      "type": "email",
+      "delay": 9,
+      "delayUnit": "days",
+      "subject": "AI Voice Agent Pricing & Your Questions Answered",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "welcome-email-04",
+      "preheader": "Transparent pricing from $999/month with 30-day guarantee",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Let's talk numbers and answer the questions you're probably thinking.\n\nPRICING OPTIONS:\n\nStarter Package: $999/month\n- 1 AI Voice Agent\n- 500 calls/month\n- Basic CRM included\n- Email & chat support\n- 48-hour setup\n\nGrowth Package: $1,497/month (Most Popular)\n- 2 AI Voice Agents\n- 1,500 calls/month\n- Advanced CRM with automation\n- Priority support\n- Custom integrations\n\nEnterprise Package: $2,195+/month\n- Unlimited AI Voice Agents\n- Unlimited calls\n- White-label option\n- Dedicated account manager\n- Custom development\n\nALL PACKAGES INCLUDE:\n- 30-day money-back guarantee\n- Free CRM platform\n- Ongoing optimization\n- Analytics dashboard\n- Training & documentation\n\nFREQUENTLY ASKED QUESTIONS:\n\nQ: How long does setup take?\nA: 48 hours from contract signature to go-live.\n\nQ: What if leads can tell it's AI?\nA: Our agents are designed for transparency and natural conversation. Leads appreciate the instant response and 24/7 availability.\n\nQ: Can it integrate with my existing CRM?\nA: Yes! We integrate with most major CRMs (HubSpot, Salesforce, Pipedrive, etc.) or provide our own.\n\nQ: What's the ROI?\nA: Most clients see 3-5x ROI within 90 days through increased lead conversion and reduced staffing costs.\n\nQ: Is there a contract?\nA: Month-to-month with 30-day money-back guarantee. Cancel anytime.\n\nQ: What industries do you serve?\nA: Marketing agencies, real estate, home services, professional services, healthcare, and more.\n\nReady to get started?",
+        "cta": "Book Your Strategy Call",
+        "ctaUrl": "{{calendar_link}}",
+        "signature": "The Capture Client Team"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "welcome-005",
+      "stepName": "Final Push Email",
+      "type": "email",
+      "delay": 14,
+      "delayUnit": "days",
+      "subject": "Last Chance: Exclusive Setup Fee Waiver ($500 Value)",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "welcome-email-05",
+      "preheader": "Special offer expires in 48 hours - Save $500 on setup",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "It's been two weeks since you first showed interest in automating your lead generation with AI Voice Agents.\n\nI wanted to reach out one last time with a special offer.\n\nFOR THE NEXT 48 HOURS ONLY:\nWe're waiving our $500 setup fee for new clients.\n\nThat means you get:\n- Custom AI Voice Agent training ($500 value) - FREE\n- CRM integration & setup ($300 value) - INCLUDED\n- 48-hour implementation - GUARANTEED\n- 30-day money-back guarantee - RISK-FREE\n\nTOTAL VALUE: Over $800 in savings\n\nWHY NOW?\nEvery day without AI Voice Agents means:\n- Missed leads (average business loses 30% of leads to slow response)\n- Wasted ad spend (you're paying for leads you can't handle)\n- Burned-out sales team (repetitive qualification calls)\n- Lost revenue (competitors with AI are moving faster)\n\nOUR TRACK RECORD:\n- 500+ businesses served\n- 4.9/5 average rating\n- 99% call accuracy\n- 67% average increase in qualified leads\n\nTHIS OFFER EXPIRES: {{offer_expiry_date}}\n\nDon't let this opportunity slip away.\n\nReady to transform your lead generation?",
+        "cta": "Claim Your $500 Discount",
+        "ctaUrl": "{{calendar_link}}?offer=setup-waiver",
+        "secondaryCta": "I Have Questions",
+        "secondaryCtaUrl": "mailto:info@captureclient.net?subject=Questions about AI Voice Agents",
+        "signature": "The Capture Client Team\nP.S. If you're not ready now, no worries. Reply to this email anytime you want to chat."
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    }
+  ],
+  "exitConditions": [
+    {
+      "type": "tag_added",
+      "value": "customer"
+    },
+    {
+      "type": "tag_added",
+      "value": "demo_booked"
+    },
+    {
+      "type": "tag_added",
+      "value": "unsubscribed"
+    }
+  ],
+  "analytics": {
+    "trackConversions": true,
+    "conversionGoals": [
+      "demo_booked",
+      "proposal_sent",
+      "customer_won"
+    ],
+    "reportingInterval": "weekly"
+  }
+}

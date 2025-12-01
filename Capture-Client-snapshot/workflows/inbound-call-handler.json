@@ -1,0 +1,254 @@
+{
+  "name": "Inbound Call Handler",
+  "description": "Routes incoming calls to AI receptionist with business hours logic and emergency handling",
+  "version": "1.0.0",
+  "trigger": {
+    "type": "call_incoming",
+    "source": "phone_system",
+    "filters": {
+      "call_type": "inbound",
+      "phone_number": "{{contact.phone}}"
+    }
+  },
+  "settings": {
+    "business_hours": {
+      "timezone": "America/New_York",
+      "schedule": {
+        "monday": { "start": "09:00", "end": "18:00" },
+        "tuesday": { "start": "09:00", "end": "18:00" },
+        "wednesday": { "start": "09:00", "end": "18:00" },
+        "thursday": { "start": "09:00", "end": "18:00" },
+        "friday": { "start": "09:00", "end": "18:00" },
+        "saturday": { "closed": true },
+        "sunday": { "closed": true }
+      },
+      "holidays": []
+    },
+    "emergency_keywords": ["emergency", "urgent", "asap", "immediately", "critical"],
+    "owner_phone": "{{custom_values.owner_phone}}",
+    "ai_receptionist_endpoint": "{{custom_values.ai_receptionist_url}}"
+  },
+  "steps": [
+    {
+      "id": "step_1",
+      "name": "Check Business Hours",
+      "type": "condition",
+      "condition": {
+        "operator": "is_within_business_hours",
+        "timezone": "America/New_York"
+      },
+      "on_true": "step_2",
+      "on_false": "step_5"
+    },
+    {
+      "id": "step_2",
+      "name": "Route to AI Receptionist (Business Hours)",
+      "type": "action",
+      "action": {
+        "type": "connect_call",
+        "target": "ai_agent",
+        "agent_config": {
+          "endpoint": "{{custom_values.ai_receptionist_url}}",
+          "greeting": "Thank you for calling Capture Client, your AI solutions partner in Knoxville. How can I help you today?",
+          "context": {
+            "business_name": "Capture Client",
+            "location": "Knoxville, Tennessee",
+            "phone": "(865) 346-3339",
+            "services": ["AI Voice Agents", "Lead Generation", "CRM Solutions"],
+            "availability": "business_hours"
+          }
+        }
+      },
+      "next": "step_3"
+    },
+    {
+      "id": "step_3",
+      "name": "Monitor Call for Emergency Keywords",
+      "type": "listener",
+      "listener": {
+        "type": "call_transcript_monitor",
+        "keywords": "{{settings.emergency_keywords}}",
+        "action_on_match": "step_4"
+      },
+      "next": "step_8"
+    },
+    {
+      "id": "step_4",
+      "name": "Transfer to Owner (Emergency)",
+      "type": "action",
+      "action": {
+        "type": "transfer_call",
+        "target": "{{settings.owner_phone}}",
+        "announcement": "Transferring you to our owner for immediate assistance.",
+        "fallback": {
+          "action": "take_message",
+          "message": "I apologize, but our owner is temporarily unavailable. I'll take a detailed message and ensure you receive a call back within 15 minutes."
+        }
+      },
+      "next": "step_8"
+    },
+    {
+      "id": "step_5",
+      "name": "Route to AI Receptionist (After Hours)",
+      "type": "action",
+      "action": {
+        "type": "connect_call",
+        "target": "ai_agent",
+        "agent_config": {
+          "endpoint": "{{custom_values.ai_receptionist_url}}",
+          "greeting": "Thank you for calling Capture Client. You've reached us outside of our normal business hours, which are Monday through Friday, 9 AM to 6 PM Eastern Time. I'm here to help you. What can I assist you with?",
+          "context": {
+            "business_name": "Capture Client",
+            "location": "Knoxville, Tennessee",
+            "phone": "(865) 346-3339",
+            "availability": "after_hours",
+            "next_available": "{{next_business_day}} at 9:00 AM EST"
+          },
+          "capabilities": ["take_message", "schedule_callback", "emergency_routing"]
+        }
+      },
+      "next": "step_6"
+    },
+    {
+      "id": "step_6",
+      "name": "Check if Emergency After Hours",
+      "type": "condition",
+      "condition": {
+        "operator": "or",
+        "conditions": [
+          {
+            "field": "{{call.transcript}}",
+            "operator": "contains_any",
+            "value": "{{settings.emergency_keywords}}"
+          },
+          {
+            "field": "{{call.caller_intent}}",
+            "operator": "equals",
+            "value": "emergency"
+          }
+        ]
+      },
+      "on_true": "step_7",
+      "on_false": "step_8"
+    },
+    {
+      "id": "step_7",
+      "name": "Handle After Hours Emergency",
+      "type": "action",
+      "action": {
+        "type": "transfer_call",
+        "target": "{{settings.owner_phone}}",
+        "announcement": "I understand this is urgent. Let me transfer you to our emergency contact.",
+        "fallback": {
+          "action": "take_detailed_message",
+          "immediate_notification": true,
+          "notification_channels": ["sms", "email", "slack"]
+        }
+      },
+      "next": "step_8"
+    },
+    {
+      "id": "step_8",
+      "name": "Log Call Outcome",
+      "type": "action",
+      "action": {
+        "type": "create_note",
+        "note_template": {
+          "title": "Inbound Call - {{call.timestamp}}",
+          "body": "**Call Details:**\n- Caller: {{contact.name}} ({{contact.phone}})\n- Duration: {{call.duration}}\n- Time: {{call.timestamp}}\n- Business Hours: {{call.during_business_hours}}\n- Outcome: {{call.outcome}}\n- Intent: {{call.caller_intent}}\n- Transferred: {{call.was_transferred}}\n\n**Summary:**\n{{call.summary}}\n\n**Next Steps:**\n{{call.next_steps}}"
+        }
+      },
+      "next": "step_9"
+    },
+    {
+      "id": "step_9",
+      "name": "Update Contact Custom Fields",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "last_call_date": "{{call.timestamp}}",
+          "last_call_outcome": "{{call.outcome}}",
+          "last_call_intent": "{{call.caller_intent}}",
+          "total_calls": "{{contact.total_calls + 1}}",
+          "call_answered": true
+        }
+      },
+      "next": "step_10"
+    },
+    {
+      "id": "step_10",
+      "name": "Route to Appropriate Follow-up Workflow",
+      "type": "decision",
+      "decisions": [
+        {
+          "condition": {
+            "field": "{{call.caller_intent}}",
+            "operator": "equals",
+            "value": "demo_request"
+          },
+          "action": {
+            "type": "trigger_workflow",
+            "workflow": "demo-booking"
+          }
+        },
+        {
+          "condition": {
+            "field": "{{call.outcome}}",
+            "operator": "equals",
+            "value": "new_lead"
+          },
+          "action": {
+            "type": "trigger_workflow",
+            "workflow": "lead-qualification"
+          }
+        },
+        {
+          "condition": {
+            "field": "{{call.voicemail_left}}",
+            "operator": "equals",
+            "value": true
+          },
+          "action": {
+            "type": "trigger_workflow",
+            "workflow": "voicemail-processing"
+          }
+        }
+      ],
+      "default": {
+        "action": {
+          "type": "complete",
+          "status": "success"
+        }
+      }
+    }
+  ],
+  "custom_values": {
+    "ai_receptionist_url": "https://api.captclient.com/ai-receptionist",
+    "owner_phone": "+18653463339",
+    "emergency_response_time": "15",
+    "business_phone": "(865) 346-3339",
+    "company_name": "Capture Client",
+    "company_location": "Knoxville, TN"
+  },
+  "error_handling": {
+    "on_error": {
+      "action": "take_voicemail",
+      "notification": {
+        "type": "sms",
+        "recipient": "{{settings.owner_phone}}",
+        "message": "Error in call handling workflow. Voicemail taken from {{contact.phone}}"
+      }
+    }
+  },
+  "analytics": {
+    "track_events": [
+      "call_received",
+      "call_routed",
+      "emergency_detected",
+      "after_hours_call",
+      "call_completed",
+      "transfer_executed"
+    ]
+  }
+}

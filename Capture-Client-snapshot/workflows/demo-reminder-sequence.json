@@ -1,0 +1,326 @@
+{
+  "workflowId": "demo-reminder-sequence-001",
+  "workflowName": "Demo Reminder Sequence",
+  "version": "1.0.0",
+  "status": "active",
+  "description": "Automated reminders for demo appointments including 24-hour, 1-hour reminders, and post-demo follow-up",
+
+  "trigger": {
+    "type": "appointment_booked",
+    "appointmentTypes": [
+      "discovery_call",
+      "demo",
+      "strategy_session",
+      "consultation"
+    ],
+    "source": "calendar_booking"
+  },
+
+  "objectives": [
+    "Reduce no-shows by 70%+",
+    "Ensure prospect is prepared for demo",
+    "Collect confirmation from attendees",
+    "Handle reschedule requests smoothly",
+    "Follow up post-demo for next steps"
+  ],
+
+  "sequence": [
+    {
+      "step": 1,
+      "name": "Immediate Confirmation",
+      "delay": "0 minutes",
+      "type": "sms",
+      "message": "Great news, {{first_name}}! 🎉\n\nYour {{appointment_type}} with Capture Client is confirmed:\n\n📅 {{date}}\n🕒 {{time}} {{timezone}}\n👤 Meeting with: {{staff_name}}\n{{meeting_details}}\n\nReply CONFIRM if you're good, or RESCHEDULE if something came up!",
+      "personalization": {
+        "first_name": "required",
+        "appointment_type": "required",
+        "date": "required",
+        "time": "required",
+        "timezone": "required",
+        "staff_name": "required",
+        "meeting_details": "Zoom link or phone number"
+      },
+      "waitForResponse": true,
+      "expectedResponses": ["confirm", "reschedule", "cancel"]
+    },
+
+    {
+      "step": 2,
+      "name": "Preparation Info",
+      "delay": "2 hours",
+      "type": "sms",
+      "condition": "if_confirmed_or_no_response",
+      "message": "Quick tip for our {{appointment_type}}, {{first_name}}:\n\n✅ Have a list of your current pain points ready\n✅ Think about your ideal solution\n✅ Know your approximate budget range\n\nThis helps us show you exactly what matters to you! See you {{date}}!",
+      "skipIfCondition": "appointment_within_24_hours"
+    },
+
+    {
+      "step": 3,
+      "name": "24-Hour Reminder",
+      "delay": "24_hours_before_appointment",
+      "type": "sms",
+      "message": "Hi {{first_name}}! 👋\n\nReminder: Your {{appointment_type}} with {{staff_name}} is TOMORROW at {{time}} {{timezone}}.\n\n{{meeting_details}}\n\nReply CONFIRM if you're all set, or RESCHEDULE if you need to change it!",
+      "waitForResponse": true,
+      "criticalPath": true
+    },
+
+    {
+      "step": 4,
+      "name": "No Confirmation Follow-up",
+      "delay": "12_hours_before_appointment",
+      "type": "sms",
+      "condition": "if_no_confirmation_received",
+      "message": "{{first_name}}, just making sure we're still on for today at {{time}} {{timezone}}?\n\nPlease reply YES to confirm or let me know if you need to reschedule. Thanks!",
+      "waitForResponse": true,
+      "escalate": true
+    },
+
+    {
+      "step": 5,
+      "name": "1-Hour Reminder",
+      "delay": "1_hour_before_appointment",
+      "type": "sms",
+      "message": "{{first_name}}, your {{appointment_type}} starts in 1 HOUR ({{time}} {{timezone}})! 🕐\n\n{{join_instruction}}\n\nLooking forward to it!",
+      "condition": "if_confirmed",
+      "skipIfCondition": "not_confirmed_by_12_hours_before"
+    },
+
+    {
+      "step": 6,
+      "name": "5-Minute Reminder",
+      "delay": "5_minutes_before_appointment",
+      "type": "sms",
+      "condition": "if_video_meeting",
+      "message": "{{first_name}}, we're ready when you are! Your {{appointment_type}} starts in 5 minutes.\n\n{{zoom_link}}\n\nSee you in a moment! 🚀"
+    },
+
+    {
+      "step": 7,
+      "name": "Post-Demo Thank You",
+      "delay": "1_hour_after_appointment",
+      "type": "sms",
+      "condition": "if_appointment_completed",
+      "message": "Thanks for your time today, {{first_name}}! 🙏\n\nIt was great learning about {{business_name}} and {{pain_point}}.\n\n{{next_steps}}\n\nAny questions? Just reply here anytime!",
+      "personalization": {
+        "next_steps": "Dynamic based on demo outcome"
+      },
+      "waitForResponse": true
+    },
+
+    {
+      "step": 8,
+      "name": "Send Proposal/Resources",
+      "delay": "3_hours_after_appointment",
+      "type": "sms",
+      "condition": "if_demo_went_well",
+      "message": "Hey {{first_name}}! As promised, here's {{resource_type}}:\n\n{{resource_link}}\n\nTake a look and let me know what questions you have. When's a good time to discuss next steps?",
+      "resourceTypes": [
+        "custom proposal",
+        "pricing breakdown",
+        "case study",
+        "implementation timeline"
+      ]
+    },
+
+    {
+      "step": 9,
+      "name": "No-Show Follow-up",
+      "delay": "30_minutes_after_missed_appointment",
+      "type": "sms",
+      "condition": "if_no_show",
+      "message": "Hi {{first_name}}, we missed you at your {{appointment_type}} today at {{time}}. Everything okay?\n\nNo worries - things come up! Would you like to reschedule? We have these times available:\n\n1. {{option_1}}\n2. {{option_2}}\n3. {{option_3}}\n\nJust reply with the number that works!",
+      "waitForResponse": true,
+      "urgency": "high"
+    },
+
+    {
+      "step": 10,
+      "name": "No-Show Second Follow-up",
+      "delay": "24_hours_after_no_show",
+      "type": "sms",
+      "condition": "if_no_response_to_noshow_message",
+      "message": "{{first_name}}, just checking in one more time about rescheduling your {{appointment_type}}.\n\nIf you're still interested, I'm here to help! If not, no problem at all.\n\nShould I keep your info on file for future follow-up?",
+      "waitForResponse": true,
+      "finalAttempt": true
+    },
+
+    {
+      "step": 11,
+      "name": "Decision Maker Follow-up",
+      "delay": "48_hours_after_demo",
+      "type": "sms",
+      "condition": "if_positive_demo_but_no_commitment",
+      "message": "Hey {{first_name}}! Have you had a chance to think about what we discussed?\n\nI know these decisions take time, especially if you need to loop in {{decision_maker_title}}.\n\nAny questions I can answer to help move things forward?",
+      "waitForResponse": true
+    },
+
+    {
+      "step": 12,
+      "name": "Transition to Nurture",
+      "delay": "5_days_after_demo",
+      "type": "workflow_transition",
+      "condition": "if_no_commitment_yet",
+      "action": "move_to_lead_nurture_sequence",
+      "message": "{{first_name}}, I know you're probably weighing your options. No pressure from us!\n\nI'll check back in a couple weeks, but in the meantime, feel free to reach out with any questions.\n\nHere's our calendar if you want to schedule another call: {{calendar_link}}"
+    }
+  ],
+
+  "conditionalBranching": {
+    "confirmation_received": {
+      "action": "continue_normal_sequence",
+      "updateStatus": "confirmed"
+    },
+    "reschedule_requested": {
+      "action": "trigger_reschedule_flow",
+      "workflow": "appointment_reschedule_handler"
+    },
+    "cancellation_requested": {
+      "action": "trigger_cancellation_flow",
+      "workflow": "appointment_cancellation_handler"
+    },
+    "no_show": {
+      "action": "trigger_noshow_recovery_sequence",
+      "maxAttempts": 2
+    },
+    "demo_completed_positive": {
+      "action": "trigger_proposal_sequence",
+      "pipelineStage": "Proposal Sent"
+    },
+    "demo_completed_negative": {
+      "action": "mark_as_lost",
+      "followUpIn": "90 days"
+    }
+  },
+
+  "rescheduleFlow": {
+    "enabled": true,
+    "steps": [
+      {
+        "step": 1,
+        "message": "No problem, {{first_name}}! I understand things come up. What day/time works better for you this week?",
+        "waitForResponse": true
+      },
+      {
+        "step": 2,
+        "message": "I can offer you these times:\n\n1️⃣ {{option_1}}\n2️⃣ {{option_2}}\n3️⃣ {{option_3}}\n\nReply with the number, or suggest another time!",
+        "waitForResponse": true
+      },
+      {
+        "step": 3,
+        "message": "Perfect! I've rescheduled your {{appointment_type}} to {{new_date}} at {{new_time}} {{timezone}}.\n\nYou'll get a new confirmation shortly. See you then! 📅"
+      }
+    ]
+  },
+
+  "noShowRecovery": {
+    "enabled": true,
+    "maxAttempts": 2,
+    "attemptDelay": "24 hours",
+    "finalAction": "add_to_long_term_nurture"
+  },
+
+  "postDemoRouting": {
+    "hot_lead": {
+      "indicators": [
+        "Asked about pricing during demo",
+        "Wants to move forward ASAP",
+        "Decision maker on the call",
+        "Budget confirmed"
+      ],
+      "action": "escalate_to_sales_immediately",
+      "message": "{{first_name}}, let's get this moving! I'll have {{closer_name}} reach out to you today to finalize everything. Sound good?"
+    },
+    "warm_lead": {
+      "indicators": [
+        "Interested but needs time to decide",
+        "Needs to consult with partner/team",
+        "Budget concerns but open"
+      ],
+      "action": "send_proposal_and_nurture",
+      "followUpDelay": "48 hours"
+    },
+    "cold_lead": {
+      "indicators": [
+        "Just exploring options",
+        "Timeline is 6+ months out",
+        "Significant objections"
+      ],
+      "action": "long_term_nurture_sequence",
+      "followUpDelay": "30 days"
+    }
+  },
+
+  "integrations": {
+    "ghl": {
+      "calendar": {
+        "syncEvents": true,
+        "updateStatus": true,
+        "trackAttendance": true
+      },
+      "tags": {
+        "confirmed": "demo-confirmed",
+        "reminded": "demo-reminded",
+        "attended": "demo-attended",
+        "noShow": "demo-no-show",
+        "rescheduled": "demo-rescheduled"
+      },
+      "customFields": {
+        "confirmationStatus": "demo_confirmation_status",
+        "remindersSent": "demo_reminders_sent",
+        "attendanceStatus": "demo_attendance",
+        "demoOutcome": "demo_outcome",
+        "nextSteps": "demo_next_steps"
+      },
+      "opportunities": {
+        "updateStage": true,
+        "logNotes": true
+      }
+    }
+  },
+
+  "personalizationTokens": {
+    "required": [
+      "{{first_name}}",
+      "{{appointment_type}}",
+      "{{date}}",
+      "{{time}}",
+      "{{timezone}}",
+      "{{staff_name}}"
+    ],
+    "optional": [
+      "{{business_name}}",
+      "{{pain_point}}",
+      "{{meeting_details}}",
+      "{{zoom_link}}",
+      "{{phone_number}}",
+      "{{next_steps}}",
+      "{{resource_type}}",
+      "{{resource_link}}",
+      "{{decision_maker_title}}",
+      "{{calendar_link}}"
+    ]
+  },
+
+  "complianceSettings": {
+    "respectTimeZones": true,
+    "quietHours": {
+      "enabled": true,
+      "start": "21:00",
+      "end": "08:00"
+    },
+    "optOutHandling": true,
+    "maxDailyReminders": 3
+  },
+
+  "analytics": {
+    "trackMetrics": [
+      "confirmation_rate",
+      "no_show_rate",
+      "reschedule_rate",
+      "1hour_reminder_effectiveness",
+      "show_rate_by_confirmation_status",
+      "post_demo_response_rate",
+      "demo_to_proposal_conversion"
+    ]
+  }
+}

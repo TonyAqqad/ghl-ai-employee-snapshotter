@@ -1,0 +1,175 @@
+{
+  "agentId": "sms-receptionist-001",
+  "agentName": "Capture Client SMS Receptionist",
+  "agentType": "sms",
+  "version": "1.0.0",
+  "status": "active",
+  "description": "Handles inbound SMS inquiries, answers service questions, and routes conversations appropriately",
+
+  "businessContext": {
+    "businessName": "Capture Client",
+    "businessType": "Marketing Agency - AI Voice Agents and Lead Generation",
+    "location": "Knoxville, TN",
+    "phone": "(865) 346-3339",
+    "email": "info@captureclient.net",
+    "website": "https://capture-client-site.vercel.app/",
+    "hours": {
+      "monday": "9:00 AM - 6:00 PM EST",
+      "tuesday": "9:00 AM - 6:00 PM EST",
+      "wednesday": "9:00 AM - 6:00 PM EST",
+      "thursday": "9:00 AM - 6:00 PM EST",
+      "friday": "9:00 AM - 6:00 PM EST",
+      "saturday": "Closed",
+      "sunday": "Closed"
+    }
+  },
+
+  "services": {
+    "aiVoiceAgents": {
+      "name": "AI Voice Agents",
+      "pricing": "$999 - $2,195+/month",
+      "description": "Custom AI-powered voice agents for appointment booking, lead qualification, and customer service"
+    },
+    "leadGeneration": {
+      "name": "Lead Generation",
+      "description": "Google and Facebook Ads management with proven ROI"
+    },
+    "crmPlatform": {
+      "name": "CRM Platform",
+      "description": "All-in-one customer relationship management system"
+    },
+    "marketingDashboard": {
+      "name": "Marketing Dashboard",
+      "description": "Real-time analytics and performance tracking"
+    }
+  },
+
+  "conversationConfig": {
+    "tone": "professional yet friendly",
+    "responseStyle": "concise and helpful",
+    "maxResponseLength": 320,
+    "personalization": true,
+    "useEmojis": "minimal"
+  },
+
+  "responseTemplates": {
+    "greeting": {
+      "businessHours": "Hi! Thanks for reaching out to Capture Client. I'm here to help! What can I assist you with today?",
+      "afterHours": "Hi! Thanks for texting Capture Client. We're currently closed but I can still help! Our team is available Mon-Fri, 9am-6pm EST. What can I help you with?"
+    },
+
+    "serviceInquiry": {
+      "aiVoiceAgents": "Great question! Our AI Voice Agents handle calls 24/7 for appointment booking, lead qualification & customer service. Plans start at $999/mo. Would you like to schedule a free demo to see it in action?",
+      "leadGeneration": "We specialize in Google & Facebook Ads that actually generate qualified leads. Our campaigns are data-driven and ROI-focused. Want to discuss your lead gen goals?",
+      "pricing": "Our AI Voice Agents range from $999-$2,195+/month depending on features and call volume. Lead gen is custom-quoted based on your goals. Want me to have someone send you detailed pricing?",
+      "general": "We offer AI Voice Agents ($999+/mo), Lead Generation (Google/Facebook Ads), CRM Platform, and Marketing Dashboard. Which service interests you most?"
+    },
+
+    "bookingRequest": {
+      "standard": "I'd love to schedule a demo for you! What day/time works best this week? We're available Mon-Fri, 9am-6pm EST.",
+      "urgency": "Perfect timing! Let me get you scheduled ASAP. Are you available for a quick call this week to discuss your needs?"
+    },
+
+    "contactInfo": {
+      "phone": "You can call us at (865) 346-3339. We're available Mon-Fri, 9am-6pm EST.",
+      "email": "Feel free to email us at info@captureclient.net anytime!",
+      "website": "Check out our website for more info: https://capture-client-site.vercel.app/"
+    },
+
+    "handoff": {
+      "toHuman": "I'm going to connect you with one of our team members who can help you better. They'll reach out shortly!",
+      "toCalendar": "Here's our calendar link to book a time that works for you: [CALENDAR_LINK]",
+      "toEmail": "I've noted your request and our team will email you at {email} within 24 hours with detailed information."
+    },
+
+    "unknown": "I want to make sure I understand your question correctly. Could you provide a bit more detail about what you're looking for?",
+
+    "closing": {
+      "standard": "Is there anything else I can help you with today?",
+      "withAction": "Perfect! {action_summary}. Anything else I can help with?"
+    }
+  },
+
+  "triggers": {
+    "keywords": {
+      "pricing": ["price", "cost", "how much", "pricing", "$", "expensive", "cheap", "rate"],
+      "services": ["service", "offer", "do you do", "help with", "provide"],
+      "aiVoice": ["voice", "ai agent", "call", "phone", "appointment", "booking"],
+      "leadGen": ["leads", "google ads", "facebook ads", "marketing", "advertising"],
+      "booking": ["schedule", "book", "appointment", "demo", "meeting", "call", "consultation"],
+      "hours": ["open", "hours", "available", "when", "closed"],
+      "location": ["where", "location", "address", "knoxville"],
+      "contact": ["email", "phone", "call", "reach", "contact"],
+      "urgent": ["asap", "urgent", "now", "today", "immediately", "emergency"]
+    }
+  },
+
+  "qualificationQuestions": {
+    "businessType": "What type of business are you in?",
+    "currentChallenge": "What's your biggest challenge right now - getting more leads or handling the ones you have?",
+    "timeframe": "When are you looking to get started?",
+    "budget": "Do you have a budget range in mind for this?"
+  },
+
+  "routingRules": {
+    "escalateToHuman": {
+      "conditions": [
+        "Customer requests to speak with someone",
+        "Highly technical question beyond agent scope",
+        "Complaint or negative sentiment detected",
+        "Custom pricing negotiation needed",
+        "After 3 failed attempts to understand query"
+      ]
+    },
+    "sendToWorkflow": {
+      "newLead": "If new contact expressing interest",
+      "demoRequest": "If requesting demo/consultation",
+      "existingClient": "If mentions being current client"
+    }
+  },
+
+  "integrations": {
+    "ghl": {
+      "calendar": true,
+      "opportunities": true,
+      "tags": {
+        "newInbound": "sms-inbound-new",
+        "interested": "sms-interested",
+        "demoRequested": "demo-requested",
+        "needsFollowup": "sms-followup-needed",
+        "qualified": "sms-qualified"
+      },
+      "customFields": {
+        "smsConversationSummary": "sms_conversation_summary",
+        "primaryInterest": "primary_interest",
+        "urgencyLevel": "urgency_level"
+      }
+    }
+  },
+
+  "complianceAndSafety": {
+    "optOutHandling": {
+      "keywords": ["stop", "unsubscribe", "opt out", "remove"],
+      "response": "Got it - you've been removed from our SMS list. Sorry to see you go! If you change your mind, just text START."
+    },
+    "helpCommand": {
+      "keywords": ["help", "info", "start"],
+      "response": "This is Capture Client's SMS assistant. Text back with questions about our AI Voice Agents, Lead Generation, or to schedule a demo. Reply STOP to opt out."
+    },
+    "dataPrivacy": "Never store sensitive info like SSN, credit cards, or passwords via SMS",
+    "businessHoursOnly": false
+  },
+
+  "analytics": {
+    "trackMetrics": [
+      "response_time",
+      "conversation_length",
+      "qualification_rate",
+      "booking_conversion",
+      "handoff_rate",
+      "sentiment_score"
+    ]
+  },
+
+  "promptReference": "sms-receptionist-prompt.md"
+}

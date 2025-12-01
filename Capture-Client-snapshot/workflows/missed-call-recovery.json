@@ -1,0 +1,486 @@
+{
+  "name": "Missed Call Recovery Workflow",
+  "description": "Automatically responds to missed calls with SMS, offers callback scheduling, and escalates if no response",
+  "version": "1.0.0",
+  "trigger": {
+    "type": "call_missed",
+    "source": "phone_system",
+    "filters": {
+      "call_direction": "inbound",
+      "voicemail_left": false
+    }
+  },
+  "settings": {
+    "response_timing": {
+      "immediate_sms": "30_seconds",
+      "first_follow_up": "2_hours",
+      "second_follow_up": "24_hours",
+      "final_follow_up": "48_hours"
+    },
+    "business_hours": {
+      "timezone": "America/New_York",
+      "schedule": {
+        "monday": { "start": "09:00", "end": "18:00" },
+        "tuesday": { "start": "09:00", "end": "18:00" },
+        "wednesday": { "start": "09:00", "end": "18:00" },
+        "thursday": { "start": "09:00", "end": "18:00" },
+        "friday": { "start": "09:00", "end": "18:00" },
+        "saturday": { "closed": true },
+        "sunday": { "closed": true }
+      }
+    },
+    "callback_scheduling_link": "{{custom_values.calendly_callback_link}}",
+    "max_follow_ups": 3
+  },
+  "steps": [
+    {
+      "id": "step_1",
+      "name": "Check if Contact Exists",
+      "type": "condition",
+      "condition": {
+        "field": "{{contact.id}}",
+        "operator": "exists"
+      },
+      "on_true": "step_3",
+      "on_false": "step_2"
+    },
+    {
+      "id": "step_2",
+      "name": "Create New Contact from Missed Call",
+      "type": "action",
+      "action": {
+        "type": "create_contact",
+        "fields": {
+          "phone": "{{call.caller_phone}}",
+          "source": "missed_call",
+          "first_interaction_type": "missed_call",
+          "first_interaction_date": "{{now}}",
+          "missed_call_count": 1
+        },
+        "tags": ["missed-call", "new-contact", "needs-follow-up"]
+      },
+      "next": "step_3"
+    },
+    {
+      "id": "step_3",
+      "name": "Update Missed Call Counter",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "last_missed_call": "{{now}}",
+          "missed_call_count": "{{contact.missed_call_count + 1}}",
+          "total_call_attempts": "{{contact.total_call_attempts + 1}}"
+        },
+        "tags": ["missed-call-active"]
+      },
+      "next": "step_4"
+    },
+    {
+      "id": "step_4",
+      "name": "Wait 30 Seconds (Avoid Double-Send)",
+      "type": "wait",
+      "wait": {
+        "duration": "30_seconds"
+      },
+      "next": "step_5"
+    },
+    {
+      "id": "step_5",
+      "name": "Check Business Hours for Message Personalization",
+      "type": "condition",
+      "condition": {
+        "operator": "is_within_business_hours",
+        "timezone": "America/New_York"
+      },
+      "on_true": "step_6",
+      "on_false": "step_7"
+    },
+    {
+      "id": "step_6",
+      "name": "Send Immediate Recovery SMS (Business Hours)",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "Hi! We're sorry we missed your call just now. We're currently available and would love to help!\n\nReply to this message, or:\n📞 Call us back: (865) 346-3339\n📅 Schedule a callback: {{settings.callback_scheduling_link}}\n\nWhat can we help you with?\n\n- Capture Client Team"
+      },
+      "next": "step_8"
+    },
+    {
+      "id": "step_7",
+      "name": "Send Immediate Recovery SMS (After Hours)",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "Hi! We're sorry we missed your call. You've reached us outside business hours (Mon-Fri 9am-6pm EST).\n\nWe're here to help! \n📅 Schedule a callback: {{settings.callback_scheduling_link}}\n💬 Reply to this message (we'll respond first thing tomorrow)\n\nFor urgent matters, reply URGENT.\n\n- Capture Client"
+      },
+      "next": "step_8"
+    },
+    {
+      "id": "step_8",
+      "name": "Log Missed Call Event",
+      "type": "action",
+      "action": {
+        "type": "create_note",
+        "note_template": {
+          "title": "Missed Call - {{call.timestamp}}",
+          "body": "**Missed Call Alert**\n\n**Contact:** {{contact.name}} ({{contact.phone}})\n**Time:** {{call.timestamp}}\n**During Business Hours:** {{call.during_business_hours}}\n**Missed Call #:** {{contact.missed_call_count}}\n\n**Recovery Actions:**\n✓ Immediate SMS sent\n✓ Callback link provided\n✓ Follow-up sequence initiated\n\n**Status:** Awaiting response"
+        }
+      },
+      "next": "step_9"
+    },
+    {
+      "id": "step_9",
+      "name": "Notify Team of Missed Call",
+      "type": "action",
+      "action": {
+        "type": "send_notification",
+        "channels": [
+          {
+            "type": "slack",
+            "channel": "#missed-calls",
+            "message": "📞 Missed Call\n\n{{contact.name}} ({{contact.phone}})\nTime: {{call.timestamp}}\nMissed Calls: {{contact.missed_call_count}}\n\nRecovery SMS sent automatically."
+          }
+        ]
+      },
+      "next": "step_10"
+    },
+    {
+      "id": "step_10",
+      "name": "Wait for Response or 2 Hours",
+      "type": "wait",
+      "wait": {
+        "duration": "2_hours",
+        "interrupt_on": [
+          {
+            "event": "sms_received",
+            "from": "{{contact.phone}}",
+            "action": "exit_to_step",
+            "step": "step_17"
+          },
+          {
+            "event": "callback_scheduled",
+            "contact": "{{contact.id}}",
+            "action": "exit_to_step",
+            "step": "step_18"
+          },
+          {
+            "event": "inbound_call",
+            "from": "{{contact.phone}}",
+            "action": "exit_to_step",
+            "step": "step_19"
+          }
+        ]
+      },
+      "next": "step_11"
+    },
+    {
+      "id": "step_11",
+      "name": "Check if Contact Responded",
+      "type": "condition",
+      "condition": {
+        "operator": "or",
+        "conditions": [
+          {
+            "field": "{{contact.callback_scheduled}}",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "field": "{{contact.responded_to_missed_call}}",
+            "operator": "equals",
+            "value": true
+          }
+        ]
+      },
+      "on_true": "step_20",
+      "on_false": "step_12"
+    },
+    {
+      "id": "step_12",
+      "name": "Send First Follow-up SMS",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "Hi again! Just following up on your call earlier. We're here to help with:\n\n• AI Voice Agents\n• Lead Generation\n• CRM Solutions\n\nWhat brought you to call us? Reply here or schedule a quick chat: {{settings.callback_scheduling_link}}\n\n- Capture Client"
+      },
+      "next": "step_13"
+    },
+    {
+      "id": "step_13",
+      "name": "Wait for Response or 24 Hours",
+      "type": "wait",
+      "wait": {
+        "duration": "24_hours",
+        "interrupt_on": [
+          {
+            "event": "sms_received",
+            "from": "{{contact.phone}}",
+            "action": "exit_to_step",
+            "step": "step_17"
+          },
+          {
+            "event": "callback_scheduled",
+            "contact": "{{contact.id}}",
+            "action": "exit_to_step",
+            "step": "step_18"
+          },
+          {
+            "event": "inbound_call",
+            "from": "{{contact.phone}}",
+            "action": "exit_to_step",
+            "step": "step_19"
+          }
+        ]
+      },
+      "next": "step_14"
+    },
+    {
+      "id": "step_14",
+      "name": "Check if Contact Responded (24hr)",
+      "type": "condition",
+      "condition": {
+        "operator": "or",
+        "conditions": [
+          {
+            "field": "{{contact.callback_scheduled}}",
+            "operator": "equals",
+            "value": true
+          },
+          {
+            "field": "{{contact.responded_to_missed_call}}",
+            "operator": "equals",
+            "value": true
+          }
+        ]
+      },
+      "on_true": "step_20",
+      "on_false": "step_15"
+    },
+    {
+      "id": "step_15",
+      "name": "Send Final Follow-up SMS",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "Hi {{contact.first_name}}, this is our last follow-up about your recent call attempt.\n\nIf you still need assistance, we're here! \n📞 (865) 346-3339\n📅 {{settings.callback_scheduling_link}}\n\nIf now's not a good time, no worries - reach out whenever you're ready.\n\n- Capture Client Team"
+      },
+      "next": "step_16"
+    },
+    {
+      "id": "step_16",
+      "name": "Wait for Response or 48 Hours (Final)",
+      "type": "wait",
+      "wait": {
+        "duration": "48_hours",
+        "interrupt_on": [
+          {
+            "event": "sms_received",
+            "from": "{{contact.phone}}",
+            "action": "exit_to_step",
+            "step": "step_17"
+          },
+          {
+            "event": "callback_scheduled",
+            "contact": "{{contact.id}}",
+            "action": "exit_to_step",
+            "step": "step_18"
+          },
+          {
+            "event": "inbound_call",
+            "from": "{{contact.phone}}",
+            "action": "exit_to_step",
+            "step": "step_19"
+          }
+        ]
+      },
+      "next": "step_21"
+    },
+    {
+      "id": "step_17",
+      "name": "Contact Responded via SMS",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "responded_to_missed_call": true,
+          "missed_call_recovered": true,
+          "recovery_method": "sms_reply",
+          "recovery_time": "{{now}}"
+        },
+        "tags": ["missed-call-recovered", "active-conversation"],
+        "remove_tags": ["missed-call-active"]
+      },
+      "next": "step_22"
+    },
+    {
+      "id": "step_18",
+      "name": "Contact Scheduled Callback",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "callback_scheduled": true,
+          "missed_call_recovered": true,
+          "recovery_method": "callback_scheduled",
+          "recovery_time": "{{now}}"
+        },
+        "tags": ["missed-call-recovered", "callback-scheduled"],
+        "remove_tags": ["missed-call-active"]
+      },
+      "next": "step_22"
+    },
+    {
+      "id": "step_19",
+      "name": "Contact Called Back",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "missed_call_recovered": true,
+          "recovery_method": "inbound_call",
+          "recovery_time": "{{now}}"
+        },
+        "tags": ["missed-call-recovered"],
+        "remove_tags": ["missed-call-active"]
+      },
+      "next": "step_22"
+    },
+    {
+      "id": "step_20",
+      "name": "Early Recovery Success",
+      "type": "action",
+      "action": {
+        "type": "create_note",
+        "note_template": {
+          "title": "Missed Call Recovered - {{contact.name}}",
+          "body": "**Successful Recovery**\n\nOriginal missed call: {{call.timestamp}}\nRecovery method: {{contact.recovery_method}}\nRecovery time: {{contact.recovery_time}}\nTime to recovery: {{contact.recovery_time - call.timestamp}}\n\n**Status:** Contact engaged successfully"
+        }
+      },
+      "next": "step_22"
+    },
+    {
+      "id": "step_21",
+      "name": "No Response - Close Recovery Attempt",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "missed_call_recovered": false,
+          "recovery_attempts_completed": 3,
+          "last_recovery_attempt": "{{now}}"
+        },
+        "tags": ["missed-call-unrecovered", "low-engagement"],
+        "remove_tags": ["missed-call-active"]
+      },
+      "next": "step_23"
+    },
+    {
+      "id": "step_22",
+      "name": "Create Success Follow-up Task",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "Follow up on recovered missed call - {{contact.name}}",
+          "description": "Contact recovered after missed call via {{contact.recovery_method}}\n\nOriginal Call: {{call.timestamp}}\nRecovered: {{contact.recovery_time}}\n\n**Next Steps:**\n- Understand reason for original call\n- Qualify need\n- Provide appropriate solution\n\n**Contact:** {{contact.phone}}",
+          "due_date": "{{now + 2 hours}}",
+          "assigned_to": "{{custom_values.sales_team_email}}",
+          "priority": "high"
+        }
+      },
+      "next": "step_25"
+    },
+    {
+      "id": "step_23",
+      "name": "Create Unrecovered Follow-up Task",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "Manual outreach - Unrecovered missed call: {{contact.name}}",
+          "description": "Contact did not respond to missed call recovery attempts.\n\nMissed Call: {{call.timestamp}}\nRecovery Attempts: 3 (all SMS)\nLast Attempt: {{now}}\n\n**Recommended Actions:**\n- Try manual phone call during business hours\n- Check if number is valid\n- Consider adding to long-term nurture if no success\n\n**Contact:** {{contact.phone}}\n**Missed Call Count:** {{contact.missed_call_count}}",
+          "due_date": "{{now + 7 days}}",
+          "assigned_to": "{{custom_values.sales_team_email}}",
+          "priority": "low"
+        }
+      },
+      "next": "step_24"
+    },
+    {
+      "id": "step_24",
+      "name": "Add to Long-term Nurture",
+      "type": "action",
+      "action": {
+        "type": "add_to_campaign",
+        "campaign": "long-term-nurture",
+        "delay": "7_days"
+      },
+      "next": "step_25"
+    },
+    {
+      "id": "step_25",
+      "name": "Log Final Recovery Status",
+      "type": "action",
+      "action": {
+        "type": "create_note",
+        "note_template": {
+          "title": "Missed Call Recovery Complete - {{call.timestamp}}",
+          "body": "**Recovery Workflow Summary**\n\n**Contact:** {{contact.name}} ({{contact.phone}})\n**Original Missed Call:** {{call.timestamp}}\n**Total Missed Calls:** {{contact.missed_call_count}}\n\n**Recovery Status:** {{contact.missed_call_recovered}}\n**Recovery Method:** {{contact.recovery_method}}\n**Recovery Time:** {{contact.recovery_time}}\n**Attempts Made:** {{contact.recovery_attempts_completed}}\n\n**Actions Taken:**\n✓ Immediate SMS sent\n✓ 2-hour follow-up\n✓ 24-hour follow-up\n✓ 48-hour final follow-up\n✓ Callback link provided\n✓ Team notified\n\n**Outcome:** {{contact.missed_call_recovered ? 'Successfully recovered' : 'No response - added to nurture'}}"
+        }
+      },
+      "next": "step_26"
+    },
+    {
+      "id": "step_26",
+      "name": "Complete Workflow",
+      "type": "action",
+      "action": {
+        "type": "complete",
+        "status": "success",
+        "summary": "Missed call recovery workflow completed for {{contact.name}}. Recovered: {{contact.missed_call_recovered}}"
+      }
+    }
+  ],
+  "custom_values": {
+    "calendly_callback_link": "https://calendly.com/captclient/callback",
+    "sales_team_email": "sales@captclient.com",
+    "company_phone": "(865) 346-3339",
+    "company_name": "Capture Client"
+  },
+  "error_handling": {
+    "on_error": {
+      "action": "notify_and_create_task",
+      "notification": {
+        "type": "slack",
+        "channel": "#system-alerts",
+        "message": "Error in missed call recovery workflow for {{contact.phone}}"
+      },
+      "task": {
+        "title": "Manual follow-up needed - Workflow error",
+        "description": "Missed call recovery workflow failed for {{contact.phone}}. Please follow up manually.",
+        "priority": "high"
+      }
+    }
+  },
+  "analytics": {
+    "track_events": [
+      "missed_call_received",
+      "recovery_sms_sent",
+      "contact_responded",
+      "callback_scheduled",
+      "contact_called_back",
+      "recovery_successful",
+      "recovery_failed"
+    ],
+    "track_metrics": {
+      "recovery_rate": "percentage of missed calls successfully recovered",
+      "time_to_recovery": "average time from missed call to contact engagement",
+      "recovery_method": "which method (SMS reply, callback, inbound call) works best"
+    }
+  }
+}

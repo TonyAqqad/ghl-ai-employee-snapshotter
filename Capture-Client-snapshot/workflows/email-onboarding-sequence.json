@@ -1,0 +1,186 @@
+{
+  "workflowName": "Client Onboarding Sequence",
+  "workflowId": "cc-onboarding-sequence-001",
+  "description": "Welcome and onboarding sequence for new customers",
+  "version": "1.0",
+  "trigger": {
+    "type": "tag_added",
+    "conditions": [
+      {
+        "field": "tags",
+        "operator": "contains",
+        "value": "customer"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "onboard-001",
+      "stepName": "Welcome to Capture Client",
+      "type": "email",
+      "delay": 0,
+      "delayUnit": "minutes",
+      "subject": "Welcome to Capture Client! Let's Get You Live in 48 Hours",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "onboarding-email-01",
+      "preheader": "Your AI Voice Agent journey starts now",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Welcome to the Capture Client family!\n\nWe're thrilled to help you automate your lead generation and scale your business with AI Voice Agents.\n\nYou've made a smart investment, and we're committed to making sure you see results fast.\n\nWHAT HAPPENS NEXT:\n\nTODAY (Day 0):\n✓ Contract signed\n✓ Payment processed\n✓ Welcome email (you're reading it!)\n✓ Account creation in progress\n\nTOMORROW (Day 1):\n- Kickoff call scheduled (30 minutes)\n- Custom AI training begins\n- Integration setup starts\n- You receive access to your dashboard\n\nDAY 2 (48 HOURS):\n- AI Voice Agent goes LIVE\n- Final testing and optimization\n- Team training session\n- You start capturing leads!\n\nYOUR ONBOARDING TEAM:\nYou've been assigned a dedicated onboarding specialist: {{onboarding_specialist_name}}\nEmail: {{specialist_email}}\nPhone: {{specialist_phone}}\n\nThey'll guide you through every step.\n\nTO PREPARE FOR YOUR KICKOFF CALL:\nPlease have ready:\n\n1. ACCESS CREDENTIALS:\n   - Your CRM login (if using existing)\n   - Phone system admin access\n   - Calendar integration preferences\n\n2. BUSINESS INFORMATION:\n   - Services and pricing details\n   - Lead qualification criteria\n   - Common questions/objections\n   - Scheduling preferences\n\n3. SCRIPTS & MATERIALS:\n   - Current phone scripts (if any)\n   - Email templates you use\n   - FAQ documents\n   - Brand voice guidelines\n\nQUICK LINKS:\n\n📅 Schedule Kickoff Call: {{kickoff_calendar_link}}\n📊 Access Your Dashboard: {{dashboard_link}}\n📚 Onboarding Checklist: {{checklist_link}}\n💬 Join Our Client Slack: {{slack_invite_link}}\n📞 Support Hotline: {{support_phone}}\n\nYOUR PACKAGE:\n{{package_name}} - ${{package_price}}/month\n- {{package_features}}\n\nWHAT TO EXPECT:\n\nWEEK 1: Setup & Launch\n- AI training and configuration\n- Integration and testing\n- Team training\n- Go live!\n\nWEEK 2-4: Optimization\n- Monitor performance\n- Refine scripts\n- Adjust routing rules\n- Optimize for your best results\n\nMONTH 2+: Scale & Grow\n- Expand capabilities\n- Add more agents (if needed)\n- Advanced features\n- Continuous improvement\n\nSUPPORT & RESOURCES:\n\nWe're here 24/7:\n- Email: support@captureclient.net\n- Phone: {{support_phone}}\n- Live chat: {{dashboard_link}}\n- Knowledge base: {{kb_link}}\n\nYOU'RE PROTECTED:\n- 30-day money-back guarantee\n- No long-term contract\n- Cancel anytime (we hope you won't!)\n\nWelcome aboard! Let's transform your lead generation together.",
+        "cta": "Schedule Your Kickoff Call",
+        "ctaUrl": "{{kickoff_calendar_link}}",
+        "secondaryCta": "Access Dashboard",
+        "secondaryCtaUrl": "{{dashboard_link}}",
+        "signature": "Excited to work with you,\n\nThe Capture Client Team\nKnoxville, TN\nteam@captureclient.net"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      },
+      "actions": [
+        {
+          "type": "create_dashboard_account",
+          "credentials": "{{contact.email}}"
+        },
+        {
+          "type": "assign_onboarding_specialist"
+        },
+        {
+          "type": "send_slack_invite"
+        }
+      ]
+    },
+    {
+      "stepId": "onboard-002",
+      "stepName": "Getting Started Guide",
+      "type": "email",
+      "delay": 1,
+      "delayUnit": "days",
+      "subject": "Your Getting Started Guide + Kickoff Call Reminder",
+      "fromName": "{{onboarding_specialist_name}}",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "{{specialist_email}}",
+      "templateId": "onboarding-email-02",
+      "preheader": "Everything you need to know for a successful launch",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "It's {{onboarding_specialist_name}}, your dedicated onboarding specialist!\n\nI wanted to send you a comprehensive getting started guide to help you hit the ground running.\n\nKICKOFF CALL REMINDER:\nIf you haven't already, please schedule your kickoff call:\n{{kickoff_calendar_link}}\n\nThis 30-minute call is crucial for:\n- Understanding your business goals\n- Configuring your AI Voice Agent\n- Setting up integrations\n- Answering your questions\n\nGETTING STARTED GUIDE:\n\nSTEP 1: LOG INTO YOUR DASHBOARD\nURL: {{dashboard_link}}\nUsername: {{contact.email}}\nPassword: Check your email for temporary password\n\nSTEP 2: EXPLORE YOUR DASHBOARD\n- Pipeline view: See all your leads\n- Conversations: Review AI call transcripts\n- Analytics: Track performance metrics\n- Settings: Configure your preferences\n\nSTEP 3: REVIEW YOUR AI AGENT PROFILE\nWe've pre-configured based on your demo, but you can customize:\n- Agent name and personality\n- Business hours\n- Qualifying questions\n- Appointment types\n- Routing rules\n\nSTEP 4: CONNECT YOUR TOOLS\nWe'll help you integrate:\n- Phone system (we'll provide one if needed)\n- Calendar (Google, Outlook, iCloud)\n- CRM (or use ours)\n- Email\n- SMS\n\nSTEP 5: PREPARE YOUR SCRIPTS\nThink about:\n- How you currently greet callers\n- Your qualifying questions\n- Common objections and responses\n- Your call-to-action\n\nWe'll refine these together during onboarding.\n\nFREQUENTLY ASKED QUESTIONS:\n\nQ: When will my AI agent go live?\nA: 48 hours from your kickoff call.\n\nQ: Can I test it before going live?\nA: Absolutely! We'll do extensive testing together.\n\nQ: What if I need to make changes?\nA: Unlimited changes and optimization included. We're here to perfect it.\n\nQ: Will you train my team?\nA: Yes! We provide training for everyone who'll interact with the system.\n\nQ: What if I have technical issues?\nA: 24/7 support via email, phone, and live chat.\n\nPREPARATION CHECKLIST:\n\n✅ Schedule kickoff call\n✅ Log into dashboard\n✅ Review current phone/lead process\n✅ Gather CRM credentials\n✅ Prepare list of services/pricing\n✅ Note common customer questions\n✅ List integration needs\n✅ Invite team members to training\n\nRESOURCES:\n\n📹 Video: Dashboard Tour (5 min): {{dashboard_video}}\n📄 PDF: Setup Checklist: {{checklist_pdf}}\n📚 Guide: Best Practices: {{best_practices_link}}\n🎯 Template: Script Builder: {{script_template}}\n\nNEED HELP?\n\nI'm your dedicated point of contact.\nEmail: {{specialist_email}}\nPhone: {{specialist_phone}}\nOffice hours: Mon-Fri 8am-6pm ET\nEmergency: {{support_phone}} (24/7)\n\nLooking forward to our kickoff call!",
+        "cta": "Schedule Kickoff Call",
+        "ctaUrl": "{{kickoff_calendar_link}}",
+        "secondaryCta": "Login to Dashboard",
+        "secondaryCtaUrl": "{{dashboard_link}}",
+        "signature": "Your onboarding specialist,\n\n{{onboarding_specialist_name}}\nCapture Client\n{{specialist_email}}"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "onboard-003",
+      "stepName": "Day 7 Check-in",
+      "type": "email",
+      "delay": 7,
+      "delayUnit": "days",
+      "subject": "Week 1 Check-in: How's Your AI Voice Agent Performing?",
+      "fromName": "{{onboarding_specialist_name}}",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "{{specialist_email}}",
+      "templateId": "onboarding-email-03",
+      "preheader": "Let's review your first week and optimize",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Congratulations! You've completed your first week with Capture Client.\n\nLet's review how things are going and optimize for even better results.\n\nYOUR WEEK 1 PERFORMANCE:\n\n📞 Total Calls Handled: {{stats.total_calls}}\n✅ Qualified Leads: {{stats.qualified_leads}}\n📅 Appointments Booked: {{stats.appointments}}\n⏱️ Average Response Time: {{stats.response_time}}\n📈 Conversion Rate: {{stats.conversion_rate}}\n\nHOW ARE YOU FEELING?\n\nI'd love to hear your feedback:\n\n1. Is the AI Voice Agent meeting your expectations?\n2. Are you seeing the leads you hoped for?\n3. Is there anything you'd like to adjust?\n4. Any questions or concerns?\n\nOPTIMIZATION OPPORTUNITIES:\n\nBased on your first week, here are some things we could optimize:\n\n1. SCRIPT REFINEMENT:\nIf certain questions aren't working, we can adjust the conversation flow.\n\n2. QUALIFICATION CRITERIA:\nToo many/too few leads getting through? Let's tune the filters.\n\n3. SCHEDULING PREFERENCES:\nAre appointments booking at the right times?\n\n4. ROUTING RULES:\nAre leads being sent to the right team members?\n\n5. FOLLOW-UP CADENCE:\nShould we adjust timing on follow-up attempts?\n\nCOMMON WEEK 1 ADJUSTMENTS:\n\nMost clients make these tweaks after Week 1:\n- Refining qualifying questions\n- Adjusting business hours\n- Adding FAQ responses\n- Customizing the agent's personality\n- Integrating additional tools\n\nAll of this is included in your package!\n\nLET'S OPTIMIZE:\n\nI'd like to schedule a 15-minute optimization call to:\n- Review your metrics\n- Discuss what's working\n- Make any necessary adjustments\n- Answer your questions\n\nSchedule here: {{optimization_calendar_link}}\n\nRESOURCES YOU MIGHT FIND HELPFUL:\n\n📊 How to Read Your Analytics: {{analytics_guide}}\n🎯 10 Ways to Optimize Your AI Agent: {{optimization_guide}}\n💡 Advanced Features Tutorial: {{advanced_features}}\n🎓 Client Success Stories: {{case_studies}}\n\nREMEMBER:\n\nWeek 1 is about learning and adjusting. By Week 4, most clients see:\n- 50-70% increase in qualified leads\n- 90%+ reduction in response time\n- Significant time savings for their team\n\nYou're on the right track!\n\nQUESTIONS?\n\nReach out anytime:\nEmail: {{specialist_email}}\nPhone: {{specialist_phone}}\nLive Chat: {{dashboard_link}}\n\nProud of your progress!",
+        "cta": "Schedule Optimization Call",
+        "ctaUrl": "{{optimization_calendar_link}}",
+        "secondaryCta": "View Full Analytics",
+        "secondaryCtaUrl": "{{dashboard_link}}/analytics",
+        "signature": "Cheering you on,\n\n{{onboarding_specialist_name}}\nCapture Client Onboarding Specialist"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      },
+      "actions": [
+        {
+          "type": "generate_performance_report",
+          "period": "7_days"
+        }
+      ]
+    },
+    {
+      "stepId": "onboard-004",
+      "stepName": "Day 30 Review Request",
+      "type": "email",
+      "delay": 30,
+      "delayUnit": "days",
+      "subject": "30 Days with Capture Client - Let's Celebrate Your Results!",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "onboarding-email-04",
+      "preheader": "Your 30-day performance review + a small favor",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Hard to believe it's been 30 days since you started with Capture Client!\n\nI wanted to share your results and ask for a small favor.\n\nYOUR 30-DAY PERFORMANCE:\n\n📞 Total Calls: {{stats.month_calls}}\n✅ Qualified Leads: {{stats.month_qualified}}\n📅 Appointments: {{stats.month_appointments}}\n💰 Estimated Revenue Impact: ${{stats.revenue_impact}}\n⚡ Response Time: {{stats.avg_response}}\n📈 vs. Previous Month: +{{stats.improvement}}%\n\nROI CALCULATION:\n\nYour Investment: ${{package_price}}\nValue Delivered:\n- Qualified leads: {{stats.month_qualified}} x {{avg_lead_value}} = ${{lead_value_total}}\n- Time saved: {{stats.time_saved}} hours x ${{hourly_rate}} = ${{time_value}}\n- Opportunity cost prevented: ${{opportunity_cost}}\n\nTotal Value: ${{total_value}}\nROI: {{roi_percentage}}%\n\nWHAT CLIENTS ARE SAYING:\n\n\"We've seen a 67% increase in qualified leads since implementing Capture Client. Best investment we made this year.\"\n- Marketing Agency, Nashville\n\n\"The AI Voice Agent handles our initial screening perfectly. Our team now focuses only on ready-to-buy leads.\"\n- Real Estate Team, Knoxville\n\n\"ROI was positive within 3 weeks. We're now expanding to 3 more agents.\"\n- Home Services Company, Atlanta\n\nA SMALL FAVOR:\n\nIf you're happy with your results, would you mind sharing a quick review?\n\nIt helps other businesses discover how AI Voice Agents can transform their lead generation.\n\nIt takes 2 minutes:",
+        "cta": "Leave a Review",
+        "ctaUrl": "{{review_link}}",
+        "additionalInfo": "WHAT'S NEXT?\n\nNow that you've mastered the basics, consider:\n\n1. EXPAND YOUR CAPABILITIES:\n   - Add SMS automation\n   - Implement email sequences\n   - Create nurture campaigns\n\n2. SCALE YOUR RESULTS:\n   - Add another AI Voice Agent\n   - Extend to additional locations\n   - Cover more hours/languages\n\n3. ADVANCED FEATURES:\n   - Custom integrations\n   - Advanced analytics\n   - White-label options\n\nLet's discuss growth opportunities: {{strategy_calendar_link}}\n\nCONTINUED SUPPORT:\n\nYour onboarding phase is complete, but we're still here:\n- Monthly optimization reviews\n- Ongoing script refinement\n- Performance monitoring\n- Priority support\n\nTHANK YOU:\n\nThank you for trusting Capture Client with your lead generation. We're committed to your continued success.\n\nQuestions? Ideas? Just want to chat?\nReply to this email or call {{phone_number}}",
+        "secondaryCta": "Schedule Strategy Call",
+        "secondaryCtaUrl": "{{strategy_calendar_link}}",
+        "signature": "Grateful for your business,\n\nThe Capture Client Team\nteam@captureclient.net\n\nP.S. As a thank you for leaving a review, we'll send you our \"Advanced AI Optimization\" guide ($99 value) absolutely free."
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      },
+      "actions": [
+        {
+          "type": "generate_30_day_report",
+          "sendToClient": true
+        },
+        {
+          "type": "calculate_roi",
+          "includeInEmail": true
+        },
+        {
+          "type": "trigger_review_request"
+        }
+      ]
+    }
+  ],
+  "exitConditions": [
+    {
+      "type": "tag_added",
+      "value": "churned"
+    },
+    {
+      "type": "tag_added",
+      "value": "refunded"
+    }
+  ],
+  "postSequenceActions": [
+    {
+      "action": "add_to_workflow",
+      "workflowId": "cc-retention-sequence-001",
+      "delay": 0,
+      "delayUnit": "days"
+    }
+  ],
+  "analytics": {
+    "trackConversions": true,
+    "conversionGoals": [
+      "kickoff_scheduled",
+      "dashboard_login",
+      "optimization_call_completed",
+      "review_left"
+    ],
+    "reportingInterval": "weekly"
+  }
+}

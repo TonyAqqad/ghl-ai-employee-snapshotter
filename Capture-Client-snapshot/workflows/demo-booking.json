@@ -1,0 +1,400 @@
+{
+  "name": "Demo Booking Workflow",
+  "description": "Manages demo booking confirmations, reminders, and follow-ups for AI Voice Agent demonstrations",
+  "version": "1.0.0",
+  "trigger": {
+    "type": "multiple",
+    "triggers": [
+      {
+        "type": "workflow_trigger",
+        "source": "lead-qualification",
+        "condition": "demo_requested"
+      },
+      {
+        "type": "calendar_event_created",
+        "event_type": "demo"
+      },
+      {
+        "type": "form_submission",
+        "form_id": "demo_request_form"
+      }
+    ]
+  },
+  "settings": {
+    "demo_duration": 30,
+    "calendar_link": "{{custom_values.calendly_link}}",
+    "demo_types": {
+      "standard": {
+        "duration": 30,
+        "description": "Standard AI Voice Agent Demo"
+      },
+      "enterprise": {
+        "duration": 60,
+        "description": "Enterprise Solution Deep Dive"
+      },
+      "technical": {
+        "duration": 45,
+        "description": "Technical Integration Demo"
+      }
+    },
+    "reminder_schedule": {
+      "confirmation": "immediate",
+      "day_before": 24,
+      "hour_before": 1,
+      "post_demo": 1
+    }
+  },
+  "steps": [
+    {
+      "id": "step_1",
+      "name": "Check if Demo Already Booked",
+      "type": "condition",
+      "condition": {
+        "field": "{{contact.demo_scheduled}}",
+        "operator": "equals",
+        "value": true
+      },
+      "on_true": "step_3",
+      "on_false": "step_2"
+    },
+    {
+      "id": "step_2",
+      "name": "Send Calendar Booking Link",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "Hi {{contact.first_name}}! Thanks for your interest in seeing our AI Voice Agents in action. \n\nBook your personalized demo here: {{custom_values.calendly_link}}\n\nQuestions? Reply to this message or call us at (865) 346-3339.\n\n- Capture Client Team"
+      },
+      "next": "step_15"
+    },
+    {
+      "id": "step_3",
+      "name": "Send Booking Confirmation SMS",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "✅ Demo Confirmed!\n\nHi {{contact.first_name}}, your AI Voice Agent demo is scheduled for:\n\n📅 {{appointment.date}}\n⏰ {{appointment.time}} {{appointment.timezone}}\n⏱️ Duration: {{appointment.duration}} minutes\n\nYou'll receive reminders before the demo. See you then!\n\n- Capture Client"
+      },
+      "next": "step_4"
+    },
+    {
+      "id": "step_4",
+      "name": "Send Confirmation Email with Calendar Invite",
+      "type": "action",
+      "action": {
+        "type": "send_email",
+        "recipient": "{{contact.email}}",
+        "subject": "Your AI Voice Agent Demo is Confirmed - {{appointment.date}}",
+        "template": "demo_confirmation_email",
+        "attachments": [
+          {
+            "type": "calendar_invite",
+            "event": {
+              "title": "AI Voice Agent Demo - {{contact.company}}",
+              "start": "{{appointment.start_datetime}}",
+              "end": "{{appointment.end_datetime}}",
+              "location": "{{appointment.meeting_link}}",
+              "description": "{{templates.calendar_description}}"
+            }
+          }
+        ]
+      },
+      "next": "step_5"
+    },
+    {
+      "id": "step_5",
+      "name": "Update Contact with Demo Details",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "demo_scheduled": true,
+          "demo_date": "{{appointment.date}}",
+          "demo_time": "{{appointment.time}}",
+          "demo_type": "{{appointment.type}}",
+          "demo_status": "confirmed",
+          "appointment_id": "{{appointment.id}}",
+          "meeting_link": "{{appointment.meeting_link}}",
+          "last_interaction": "{{now}}"
+        },
+        "tags": ["demo-scheduled", "active-prospect"]
+      },
+      "next": "step_6"
+    },
+    {
+      "id": "step_6",
+      "name": "Notify Sales Team",
+      "type": "action",
+      "action": {
+        "type": "send_notification",
+        "channels": [
+          {
+            "type": "email",
+            "recipient": "{{custom_values.sales_team_email}}",
+            "subject": "Demo Booked: {{contact.name}} - {{appointment.date}}",
+            "body": "{{templates.team_notification_email}}"
+          },
+          {
+            "type": "slack",
+            "channel": "#demos",
+            "message": "📅 New Demo Booked!\n\n**{{contact.name}}** from {{contact.company}}\n**Date:** {{appointment.date}} at {{appointment.time}}\n**Type:** {{appointment.type}}\n**Lead Score:** {{contact.lead_score}}\n\n<{{appointment.meeting_link}}|Join Meeting>"
+          }
+        ]
+      },
+      "next": "step_7"
+    },
+    {
+      "id": "step_7",
+      "name": "Create Demo Preparation Task",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "Prepare for Demo: {{contact.name}} - {{contact.company}}",
+          "description": "**Demo Details:**\nContact: {{contact.name}}\nCompany: {{contact.company}}\nIndustry: {{contact.industry}}\nDate: {{appointment.date}} at {{appointment.time}}\n\n**Lead Info:**\n- Score: {{contact.lead_score}}\n- Budget: {{contact.budget_range}}\n- Timeline: {{contact.timeline}}\n- Specific Need: {{contact.specific_need}}\n\n**Prep Checklist:**\n- [ ] Review contact history and notes\n- [ ] Customize demo for {{contact.industry}}\n- [ ] Prepare relevant case studies\n- [ ] Test meeting link\n- [ ] Prepare pricing discussion",
+          "due_date": "{{appointment.date - 2 hours}}",
+          "assigned_to": "{{appointment.assigned_rep}}",
+          "priority": "high"
+        }
+      },
+      "next": "step_8"
+    },
+    {
+      "id": "step_8",
+      "name": "Wait Until 24 Hours Before Demo",
+      "type": "wait",
+      "wait": {
+        "until": "{{appointment.start_datetime - 24 hours}}"
+      },
+      "next": "step_9"
+    },
+    {
+      "id": "step_9",
+      "name": "Send 24-Hour Reminder SMS",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "Hi {{contact.first_name}}! Just a friendly reminder about your AI Voice Agent demo tomorrow:\n\n📅 {{appointment.date}}\n⏰ {{appointment.time}} {{appointment.timezone}}\n\nMeeting link: {{appointment.meeting_link}}\n\nReply CANCEL if you need to reschedule.\n\n- Capture Client"
+      },
+      "next": "step_10"
+    },
+    {
+      "id": "step_10",
+      "name": "Send 24-Hour Reminder Email",
+      "type": "action",
+      "action": {
+        "type": "send_email",
+        "recipient": "{{contact.email}}",
+        "subject": "Tomorrow: Your AI Voice Agent Demo at {{appointment.time}}",
+        "template": "demo_24hr_reminder_email"
+      },
+      "next": "step_11"
+    },
+    {
+      "id": "step_11",
+      "name": "Wait Until 1 Hour Before Demo",
+      "type": "wait",
+      "wait": {
+        "until": "{{appointment.start_datetime - 1 hour}}"
+      },
+      "next": "step_12"
+    },
+    {
+      "id": "step_12",
+      "name": "Send 1-Hour Reminder SMS",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "Your AI Voice Agent demo starts in 1 hour! ⏰\n\nTime: {{appointment.time}}\nJoin here: {{appointment.meeting_link}}\n\nWe're excited to show you what's possible!\n\n- Capture Client"
+      },
+      "next": "step_13"
+    },
+    {
+      "id": "step_13",
+      "name": "Wait Until Demo Time",
+      "type": "wait",
+      "wait": {
+        "until": "{{appointment.end_datetime}}"
+      },
+      "next": "step_14"
+    },
+    {
+      "id": "step_14",
+      "name": "Check Demo Attendance",
+      "type": "condition",
+      "condition": {
+        "field": "{{appointment.attended}}",
+        "operator": "equals",
+        "value": true
+      },
+      "on_true": "step_16",
+      "on_false": "step_19"
+    },
+    {
+      "id": "step_15",
+      "name": "Set Booking Follow-up Task",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "Follow up on demo booking - {{contact.name}}",
+          "description": "Contact expressed interest in demo but hasn't booked yet.\n\nCalendar link sent: {{now}}\nLead Score: {{contact.lead_score}}\nContact: {{contact.phone}}\n\nIf no booking in 48 hours, call to assist with scheduling.",
+          "due_date": "{{now + 48 hours}}",
+          "assigned_to": "{{custom_values.sales_team_email}}",
+          "priority": "medium"
+        }
+      },
+      "next": "step_22"
+    },
+    {
+      "id": "step_16",
+      "name": "Send Post-Demo Thank You",
+      "type": "action",
+      "action": {
+        "type": "send_email",
+        "recipient": "{{contact.email}}",
+        "subject": "Thanks for joining our demo! Next steps inside",
+        "template": "demo_follow_up_email",
+        "delay": "1 hour"
+      },
+      "next": "step_17"
+    },
+    {
+      "id": "step_17",
+      "name": "Update Demo Status - Attended",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "demo_status": "completed",
+          "demo_attended": true,
+          "demo_attended_date": "{{now}}",
+          "last_interaction": "{{now}}"
+        },
+        "tags": ["demo-completed", "hot-prospect"],
+        "remove_tags": ["demo-scheduled"]
+      },
+      "next": "step_18"
+    },
+    {
+      "id": "step_18",
+      "name": "Create Post-Demo Follow-up Task",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "Post-Demo Follow-up: {{contact.name}}",
+          "description": "**Demo Completed:** {{appointment.date}}\n\n**Next Steps:**\n1. Review demo notes and feedback\n2. Send custom proposal\n3. Address any questions/concerns\n4. Schedule implementation call if interested\n\n**Demo Notes:**\n{{appointment.notes}}\n\n**Interest Level:** {{appointment.interest_level}}\n**Objections:** {{appointment.objections}}",
+          "due_date": "{{now + 24 hours}}",
+          "assigned_to": "{{appointment.assigned_rep}}",
+          "priority": "high"
+        }
+      },
+      "next": "step_22"
+    },
+    {
+      "id": "step_19",
+      "name": "No-Show - Send SMS",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "Hi {{contact.first_name}}, we missed you at today's demo! \n\nNo worries - things come up. Want to reschedule? \n\nReply YES and I'll send you new times, or book instantly: {{custom_values.calendly_link}}\n\n- Capture Client"
+      },
+      "next": "step_20"
+    },
+    {
+      "id": "step_20",
+      "name": "Update Demo Status - No Show",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "demo_status": "no_show",
+          "demo_attended": false,
+          "no_show_count": "{{contact.no_show_count + 1}}",
+          "last_interaction": "{{now}}"
+        },
+        "tags": ["demo-no-show"],
+        "remove_tags": ["demo-scheduled"]
+      },
+      "next": "step_21"
+    },
+    {
+      "id": "step_21",
+      "name": "Create No-Show Follow-up Task",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "No-Show Follow-up: {{contact.name}}",
+          "description": "Contact did not attend scheduled demo on {{appointment.date}}\n\nNo-show count: {{contact.no_show_count}}\n\n**Actions:**\n1. Call to understand what happened\n2. Offer to reschedule\n3. Assess continued interest\n\nIf 2+ no-shows, may need to re-qualify lead.",
+          "due_date": "{{now + 4 hours}}",
+          "assigned_to": "{{appointment.assigned_rep}}",
+          "priority": "medium"
+        }
+      },
+      "next": "step_22"
+    },
+    {
+      "id": "step_22",
+      "name": "Log Demo Workflow Completion",
+      "type": "action",
+      "action": {
+        "type": "create_note",
+        "note_template": {
+          "title": "Demo Workflow - {{appointment.date}}",
+          "body": "**Demo Booking Workflow Summary**\n\n**Contact:** {{contact.name}}\n**Company:** {{contact.company}}\n**Scheduled:** {{appointment.date}} at {{appointment.time}}\n**Type:** {{appointment.type}}\n**Status:** {{contact.demo_status}}\n**Attended:** {{contact.demo_attended}}\n\n**Communications Sent:**\n- Booking confirmation (SMS + Email)\n- Calendar invite\n- 24-hour reminder\n- 1-hour reminder\n- Post-demo follow-up\n\n**Next Actions:** {{contact.next_action}}"
+        }
+      },
+      "next": "step_23"
+    },
+    {
+      "id": "step_23",
+      "name": "Complete Workflow",
+      "type": "action",
+      "action": {
+        "type": "complete",
+        "status": "success"
+      }
+    }
+  ],
+  "custom_values": {
+    "calendly_link": "https://calendly.com/captclient/demo",
+    "sales_team_email": "sales@captclient.com",
+    "company_phone": "(865) 346-3339",
+    "company_name": "Capture Client"
+  },
+  "templates": {
+    "calendar_description": "Thank you for scheduling a demo with Capture Client!\n\nDuring this session, we'll show you:\n- How AI Voice Agents can handle your inbound calls 24/7\n- Real examples from businesses like yours\n- Custom solutions for your specific needs\n- Live demonstration of the technology\n- Pricing and implementation timeline\n\nPlease have ready:\n- Current call volume estimates\n- Pain points with existing phone system\n- Questions about AI voice technology\n\nMeeting Link: {{appointment.meeting_link}}\n\nQuestions before the demo? Call us at (865) 346-3339\n\nLooking forward to meeting you!\n\nCapture Client Team",
+    "demo_confirmation_email": "Hi {{contact.first_name}},\n\nGreat news - your AI Voice Agent demo is confirmed!\n\n**Demo Details:**\nDate: {{appointment.date}}\nTime: {{appointment.time}} {{appointment.timezone}}\nDuration: {{appointment.duration}} minutes\nMeeting Link: {{appointment.meeting_link}}\n\n**What to Expect:**\nDuring our time together, I'll show you exactly how AI Voice Agents can transform your business communications. We'll cover:\n\n✓ Live demonstration of AI handling real customer calls\n✓ Custom solutions for your industry\n✓ ROI analysis and pricing options\n✓ Implementation process and timeline\n✓ Q&A session\n\n**Come Prepared:**\nTo make this demo most valuable for you, please think about:\n- Your current monthly call volume\n- Biggest phone system frustrations\n- Specific use cases you want to see\n\n**Calendar Invite:**\nI've attached a calendar invite for your convenience.\n\n**Need to Reschedule?**\nNo problem! Just reply to this email or call us at (865) 346-3339.\n\nLooking forward to showing you what's possible!\n\nBest regards,\nCapture Client Team\nKnoxville, TN\n(865) 346-3339",
+    "demo_24hr_reminder_email": "Hi {{contact.first_name}},\n\nJust a quick reminder that your AI Voice Agent demo is tomorrow!\n\n**Tomorrow:**\n{{appointment.date}} at {{appointment.time}} {{appointment.timezone}}\n\n**Join Here:**\n{{appointment.meeting_link}}\n\n**Quick Prep:**\nThink about 2-3 specific scenarios where you'd love AI to handle calls for your business. This will help me customize the demo to your needs!\n\n**Questions?**\nReply to this email or call (865) 346-3339\n\nSee you tomorrow!\n\nCapture Client Team",
+    "demo_follow_up_email": "Hi {{contact.first_name}},\n\nThank you for taking the time to see our AI Voice Agent platform in action today! It was great learning about {{contact.company}} and your specific needs.\n\n**Quick Recap:**\n{{appointment.summary}}\n\n**Next Steps:**\nBased on our conversation, here's what I recommend:\n\n1. **Custom Proposal:** I'll send over a tailored proposal within 24 hours\n2. **Pricing Options:** Including the packages we discussed\n3. **Implementation Timeline:** Expected setup and go-live dates\n\n**Resources:**\nAs promised, here are some helpful resources:\n- Case Study: [Similar Business Success Story]\n- Technical Documentation: [Integration Guide]\n- ROI Calculator: [See Your Potential Savings]\n\n**Questions or Concerns?**\nI'm here to help! Reply to this email or call me directly at (865) 346-3339.\n\n**Ready to Get Started?**\nLet's schedule a quick implementation planning call: {{custom_values.calendly_link}}\n\nLooking forward to helping you transform your customer communications!\n\nBest regards,\n[Sales Rep Name]\nCapture Client\n(865) 346-3339",
+    "team_notification_email": "Team,\n\nNew demo scheduled!\n\n**Contact Information:**\nName: {{contact.name}}\nCompany: {{contact.company}}\nPhone: {{contact.phone}}\nEmail: {{contact.email}}\n\n**Demo Details:**\nDate: {{appointment.date}}\nTime: {{appointment.time}}\nType: {{appointment.type}}\nMeeting Link: {{appointment.meeting_link}}\n\n**Lead Information:**\nScore: {{contact.lead_score}}\nTier: {{contact.lead_tier}}\nBudget: {{contact.budget_range}}\nTimeline: {{contact.timeline}}\nIndustry: {{contact.industry}}\n\n**Their Need:**\n{{contact.specific_need}}\n\n**Assigned To:** {{appointment.assigned_rep}}\n\nPreparation task created in CRM.\n\nGood luck!"
+  },
+  "error_handling": {
+    "on_error": {
+      "action": "notify_admin",
+      "notification": {
+        "type": "email",
+        "recipient": "{{custom_values.sales_team_email}}",
+        "subject": "Demo Workflow Error - {{contact.name}}",
+        "body": "An error occurred in the demo booking workflow for {{contact.name}}. Please check manually."
+      }
+    }
+  },
+  "analytics": {
+    "track_events": [
+      "demo_requested",
+      "demo_booked",
+      "reminder_sent",
+      "demo_attended",
+      "demo_no_show",
+      "demo_rescheduled"
+    ]
+  }
+}

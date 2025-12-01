@@ -1,0 +1,542 @@
+{
+  "name": "Voicemail Processing Workflow",
+  "description": "Automatically transcribes voicemails, extracts intent, notifies team, responds via SMS, and creates follow-up tasks",
+  "version": "1.0.0",
+  "trigger": {
+    "type": "voicemail_received",
+    "source": "phone_system",
+    "filters": {
+      "call_direction": "inbound",
+      "has_audio": true
+    }
+  },
+  "settings": {
+    "transcription": {
+      "service": "ghl_native",
+      "language": "en-US",
+      "enable_sentiment": true,
+      "enable_intent_detection": true
+    },
+    "priority_keywords": {
+      "urgent": ["urgent", "emergency", "asap", "immediately", "critical", "important"],
+      "sales": ["interested", "pricing", "quote", "demo", "cost", "buy", "purchase"],
+      "support": ["not working", "broken", "issue", "problem", "help", "error"],
+      "callback": ["call me", "call back", "reach me", "contact me", "get back"]
+    },
+    "auto_response_enabled": true,
+    "business_hours": {
+      "timezone": "America/New_York",
+      "schedule": {
+        "monday": { "start": "09:00", "end": "18:00" },
+        "tuesday": { "start": "09:00", "end": "18:00" },
+        "wednesday": { "start": "09:00", "end": "18:00" },
+        "thursday": { "start": "09:00", "end": "18:00" },
+        "friday": { "start": "09:00", "end": "18:00" }
+      }
+    }
+  },
+  "steps": [
+    {
+      "id": "step_1",
+      "name": "Transcribe Voicemail",
+      "type": "action",
+      "action": {
+        "type": "transcribe_voicemail",
+        "source": "{{voicemail.audio_url}}",
+        "config": {
+          "service": "{{settings.transcription.service}}",
+          "language": "{{settings.transcription.language}}",
+          "enable_sentiment": true,
+          "enable_punctuation": true
+        },
+        "output": "voicemail_transcript"
+      },
+      "next": "step_2"
+    },
+    {
+      "id": "step_2",
+      "name": "Extract Key Information with AI",
+      "type": "action",
+      "action": {
+        "type": "ai_data_extraction",
+        "source": "{{voicemail_transcript}}",
+        "extract_fields": [
+          {
+            "field": "caller_name",
+            "type": "text",
+            "prompt": "Extract the caller's name if mentioned"
+          },
+          {
+            "field": "caller_company",
+            "type": "text",
+            "prompt": "Extract the company name if mentioned"
+          },
+          {
+            "field": "callback_number",
+            "type": "phone",
+            "prompt": "Extract any phone number mentioned for callback"
+          },
+          {
+            "field": "primary_intent",
+            "type": "category",
+            "categories": ["sales_inquiry", "support_request", "callback_request", "partnership", "general_inquiry", "complaint"],
+            "prompt": "What is the primary intent of this voicemail?"
+          },
+          {
+            "field": "urgency_level",
+            "type": "category",
+            "categories": ["urgent", "normal", "low"],
+            "prompt": "How urgent is this matter based on the tone and content?"
+          },
+          {
+            "field": "specific_request",
+            "type": "text",
+            "prompt": "What specific request or question did the caller have?"
+          },
+          {
+            "field": "sentiment",
+            "type": "category",
+            "categories": ["positive", "neutral", "negative", "frustrated"],
+            "prompt": "What is the overall sentiment of the caller?"
+          },
+          {
+            "field": "mentioned_service",
+            "type": "category",
+            "categories": ["AI Voice Agents", "Lead Generation", "CRM", "General", "Multiple"],
+            "prompt": "Which service or product were they asking about?"
+          }
+        ]
+      },
+      "next": "step_3"
+    },
+    {
+      "id": "step_3",
+      "name": "Check for Priority Keywords",
+      "type": "action",
+      "action": {
+        "type": "keyword_detection",
+        "text": "{{voicemail_transcript}}",
+        "keyword_sets": "{{settings.priority_keywords}}",
+        "output": "detected_categories"
+      },
+      "next": "step_4"
+    },
+    {
+      "id": "step_4",
+      "name": "Determine Priority Level",
+      "type": "decision",
+      "decisions": [
+        {
+          "condition": {
+            "operator": "or",
+            "conditions": [
+              {
+                "field": "{{extracted.urgency_level}}",
+                "operator": "equals",
+                "value": "urgent"
+              },
+              {
+                "field": "{{detected_categories}}",
+                "operator": "contains",
+                "value": "urgent"
+              },
+              {
+                "field": "{{extracted.sentiment}}",
+                "operator": "equals",
+                "value": "frustrated"
+              }
+            ]
+          },
+          "action": {
+            "type": "set_variable",
+            "variable": "priority",
+            "value": "high"
+          },
+          "next": "step_5"
+        },
+        {
+          "condition": {
+            "operator": "or",
+            "conditions": [
+              {
+                "field": "{{detected_categories}}",
+                "operator": "contains",
+                "value": "sales"
+              },
+              {
+                "field": "{{extracted.primary_intent}}",
+                "operator": "equals",
+                "value": "sales_inquiry"
+              }
+            ]
+          },
+          "action": {
+            "type": "set_variable",
+            "variable": "priority",
+            "value": "medium"
+          },
+          "next": "step_5"
+        }
+      ],
+      "default": {
+        "action": {
+          "type": "set_variable",
+          "variable": "priority",
+          "value": "normal"
+        },
+        "next": "step_5"
+      }
+    },
+    {
+      "id": "step_5",
+      "name": "Update Contact with Voicemail Data",
+      "type": "action",
+      "action": {
+        "type": "update_contact",
+        "fields": {
+          "last_voicemail_date": "{{voicemail.timestamp}}",
+          "last_voicemail_intent": "{{extracted.primary_intent}}",
+          "last_voicemail_urgency": "{{extracted.urgency_level}}",
+          "last_voicemail_sentiment": "{{extracted.sentiment}}",
+          "voicemail_count": "{{contact.voicemail_count + 1}}",
+          "needs_callback": true,
+          "callback_priority": "{{priority}}"
+        },
+        "tags": ["voicemail-received", "{{priority}}-priority"]
+      },
+      "next": "step_6"
+    },
+    {
+      "id": "step_6",
+      "name": "Create Voicemail Note",
+      "type": "action",
+      "action": {
+        "type": "create_note",
+        "note_template": {
+          "title": "Voicemail - {{voicemail.timestamp}}",
+          "body": "**Voicemail Received**\n\n**From:** {{contact.name}} ({{contact.phone}})\n**Time:** {{voicemail.timestamp}}\n**Duration:** {{voicemail.duration}} seconds\n**Priority:** {{priority}}\n\n---\n\n**Transcript:**\n{{voicemail_transcript}}\n\n---\n\n**AI Analysis:**\n- **Primary Intent:** {{extracted.primary_intent}}\n- **Urgency:** {{extracted.urgency_level}}\n- **Sentiment:** {{extracted.sentiment}}\n- **Mentioned Service:** {{extracted.mentioned_service}}\n- **Detected Categories:** {{detected_categories}}\n\n**Caller Information:**\n- Name: {{extracted.caller_name}}\n- Company: {{extracted.caller_company}}\n- Callback #: {{extracted.callback_number}}\n\n**Specific Request:**\n{{extracted.specific_request}}\n\n**Recommended Action:** {{priority == 'high' ? 'Call back within 1 hour' : priority == 'medium' ? 'Call back within 4 hours' : 'Call back within 24 hours'}}\n\n---\n\n**Voicemail Audio:** {{voicemail.audio_url}}"
+        }
+      },
+      "next": "step_7"
+    },
+    {
+      "id": "step_7",
+      "name": "Route Based on Priority",
+      "type": "decision",
+      "decisions": [
+        {
+          "condition": {
+            "field": "{{priority}}",
+            "operator": "equals",
+            "value": "high"
+          },
+          "action": "next",
+          "next": "step_8"
+        },
+        {
+          "condition": {
+            "field": "{{priority}}",
+            "operator": "equals",
+            "value": "medium"
+          },
+          "action": "next",
+          "next": "step_10"
+        }
+      ],
+      "default": {
+        "action": "next",
+        "next": "step_12"
+      }
+    },
+    {
+      "id": "step_8",
+      "name": "HIGH PRIORITY - Send Immediate Notifications",
+      "type": "action",
+      "action": {
+        "type": "send_notification",
+        "channels": [
+          {
+            "type": "sms",
+            "recipient": "{{custom_values.sales_team_phone}}",
+            "message": "🚨 URGENT VOICEMAIL\n\nFrom: {{contact.name}}\nPhone: {{contact.phone}}\nTime: {{voicemail.timestamp}}\n\nIntent: {{extracted.primary_intent}}\nSentiment: {{extracted.sentiment}}\n\nRequest: {{extracted.specific_request}}\n\nACTION: Call back ASAP!\n\nListen: {{voicemail.audio_url}}"
+          },
+          {
+            "type": "email",
+            "recipient": "{{custom_values.sales_team_email}}",
+            "subject": "🚨 URGENT: High Priority Voicemail from {{contact.name}}",
+            "body": "{{templates.urgent_voicemail_email}}",
+            "attachments": [
+              {
+                "type": "audio",
+                "url": "{{voicemail.audio_url}}"
+              }
+            ]
+          },
+          {
+            "type": "slack",
+            "channel": "#urgent-voicemails",
+            "message": "{{templates.urgent_voicemail_slack}}"
+          },
+          {
+            "type": "phone_call",
+            "recipient": "{{custom_values.on_call_phone}}",
+            "message": "Urgent voicemail received from {{extracted.caller_name}}. Call {{contact.phone}} immediately.",
+            "only_if": "{{extracted.urgency_level == 'urgent'}}"
+          }
+        ]
+      },
+      "next": "step_9"
+    },
+    {
+      "id": "step_9",
+      "name": "HIGH PRIORITY - Create Immediate Task",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "🚨 URGENT: Call {{contact.name}} - {{extracted.primary_intent}}",
+          "description": "**HIGH PRIORITY VOICEMAIL**\n\nContact: {{contact.name}} ({{contact.phone}})\nReceived: {{voicemail.timestamp}}\n\n**Their Request:**\n{{extracted.specific_request}}\n\n**Details:**\n- Intent: {{extracted.primary_intent}}\n- Urgency: {{extracted.urgency_level}}\n- Sentiment: {{extracted.sentiment}}\n- Service Interest: {{extracted.mentioned_service}}\n\n**Full Transcript:**\n{{voicemail_transcript}}\n\n**Voicemail Audio:** {{voicemail.audio_url}}\n\n**ACTION REQUIRED:** Call back within 1 hour",
+          "due_date": "{{now + 1 hour}}",
+          "assigned_to": "{{custom_values.sales_team_email}}",
+          "priority": "urgent"
+        }
+      },
+      "next": "step_14"
+    },
+    {
+      "id": "step_10",
+      "name": "MEDIUM PRIORITY - Send Sales Team Notification",
+      "type": "action",
+      "action": {
+        "type": "send_notification",
+        "channels": [
+          {
+            "type": "email",
+            "recipient": "{{custom_values.sales_team_email}}",
+            "subject": "Sales Inquiry Voicemail: {{contact.name}}",
+            "body": "{{templates.sales_voicemail_email}}",
+            "attachments": [
+              {
+                "type": "audio",
+                "url": "{{voicemail.audio_url}}"
+              }
+            ]
+          },
+          {
+            "type": "slack",
+            "channel": "#sales-voicemails",
+            "message": "{{templates.sales_voicemail_slack}}"
+          }
+        ]
+      },
+      "next": "step_11"
+    },
+    {
+      "id": "step_11",
+      "name": "MEDIUM PRIORITY - Create Follow-up Task",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "Sales Follow-up: {{contact.name}} - {{extracted.mentioned_service}}",
+          "description": "**SALES INQUIRY VOICEMAIL**\n\nContact: {{contact.name}} ({{contact.phone}})\nCompany: {{extracted.caller_company}}\nReceived: {{voicemail.timestamp}}\n\n**Interest:**\n{{extracted.specific_request}}\n\n**Service:** {{extracted.mentioned_service}}\n**Sentiment:** {{extracted.sentiment}}\n\n**Full Transcript:**\n{{voicemail_transcript}}\n\n**Voicemail Audio:** {{voicemail.audio_url}}\n\n**ACTION:** Call back within 4 hours during business hours",
+          "due_date": "{{now + 4 hours}}",
+          "assigned_to": "{{custom_values.sales_team_email}}",
+          "priority": "high"
+        }
+      },
+      "next": "step_14"
+    },
+    {
+      "id": "step_12",
+      "name": "NORMAL PRIORITY - Send Standard Notification",
+      "type": "action",
+      "action": {
+        "type": "send_notification",
+        "channels": [
+          {
+            "type": "email",
+            "recipient": "{{custom_values.sales_team_email}}",
+            "subject": "New Voicemail: {{contact.name}}",
+            "body": "{{templates.standard_voicemail_email}}",
+            "attachments": [
+              {
+                "type": "audio",
+                "url": "{{voicemail.audio_url}}"
+              }
+            ]
+          }
+        ]
+      },
+      "next": "step_13"
+    },
+    {
+      "id": "step_13",
+      "name": "NORMAL PRIORITY - Create Standard Task",
+      "type": "action",
+      "action": {
+        "type": "create_task",
+        "task": {
+          "title": "Return Call: {{contact.name}}",
+          "description": "**VOICEMAIL CALLBACK**\n\nContact: {{contact.name}} ({{contact.phone}})\nReceived: {{voicemail.timestamp}}\n\n**Message:**\n{{extracted.specific_request}}\n\n**Transcript:**\n{{voicemail_transcript}}\n\n**Voicemail Audio:** {{voicemail.audio_url}}\n\n**ACTION:** Return call within 24 hours",
+          "due_date": "{{now + 24 hours}}",
+          "assigned_to": "{{custom_values.sales_team_email}}",
+          "priority": "medium"
+        }
+      },
+      "next": "step_14"
+    },
+    {
+      "id": "step_14",
+      "name": "Check if Auto-Response Enabled",
+      "type": "condition",
+      "condition": {
+        "field": "{{settings.auto_response_enabled}}",
+        "operator": "equals",
+        "value": true
+      },
+      "on_true": "step_15",
+      "on_false": "step_17"
+    },
+    {
+      "id": "step_15",
+      "name": "Generate Personalized Response",
+      "type": "action",
+      "action": {
+        "type": "ai_generate_text",
+        "prompt": "Generate a personalized SMS response acknowledging the voicemail with these details:\n\nCaller: {{extracted.caller_name}}\nIntent: {{extracted.primary_intent}}\nRequest: {{extracted.specific_request}}\nPriority: {{priority}}\n\nThe response should:\n1. Thank them for the voicemail\n2. Acknowledge their specific request\n3. Give them an expected callback timeframe based on priority\n4. Offer alternative contact methods\n5. Be warm, professional, and concise (under 160 chars)\n6. End with '- Capture Client Team'",
+        "output": "personalized_response"
+      },
+      "next": "step_16"
+    },
+    {
+      "id": "step_16",
+      "name": "Send Auto-Response SMS",
+      "type": "action",
+      "action": {
+        "type": "send_sms",
+        "recipient": "{{contact.phone}}",
+        "message": "{{personalized_response}}"
+      },
+      "next": "step_17"
+    },
+    {
+      "id": "step_17",
+      "name": "Check if Sales Inquiry",
+      "type": "condition",
+      "condition": {
+        "operator": "or",
+        "conditions": [
+          {
+            "field": "{{extracted.primary_intent}}",
+            "operator": "equals",
+            "value": "sales_inquiry"
+          },
+          {
+            "field": "{{detected_categories}}",
+            "operator": "contains",
+            "value": "sales"
+          }
+        ]
+      },
+      "on_true": "step_18",
+      "on_false": "step_19"
+    },
+    {
+      "id": "step_18",
+      "name": "Trigger Lead Qualification Workflow",
+      "type": "action",
+      "action": {
+        "type": "trigger_workflow",
+        "workflow": "lead-qualification",
+        "data": {
+          "source": "voicemail",
+          "transcript": "{{voicemail_transcript}}",
+          "extracted_data": "{{extracted}}"
+        }
+      },
+      "next": "step_19"
+    },
+    {
+      "id": "step_19",
+      "name": "Store Voicemail Analytics",
+      "type": "action",
+      "action": {
+        "type": "log_analytics",
+        "event": "voicemail_processed",
+        "properties": {
+          "contact_id": "{{contact.id}}",
+          "priority": "{{priority}}",
+          "intent": "{{extracted.primary_intent}}",
+          "sentiment": "{{extracted.sentiment}}",
+          "urgency": "{{extracted.urgency_level}}",
+          "duration": "{{voicemail.duration}}",
+          "timestamp": "{{voicemail.timestamp}}",
+          "business_hours": "{{voicemail.during_business_hours}}",
+          "detected_categories": "{{detected_categories}}",
+          "auto_responded": "{{settings.auto_response_enabled}}"
+        }
+      },
+      "next": "step_20"
+    },
+    {
+      "id": "step_20",
+      "name": "Complete Processing",
+      "type": "action",
+      "action": {
+        "type": "complete",
+        "status": "success",
+        "summary": "Voicemail from {{contact.name}} processed. Priority: {{priority}}, Intent: {{extracted.primary_intent}}"
+      }
+    }
+  ],
+  "custom_values": {
+    "sales_team_email": "sales@captclient.com",
+    "sales_team_phone": "+18653463339",
+    "on_call_phone": "+18653463339",
+    "company_phone": "(865) 346-3339",
+    "company_name": "Capture Client",
+    "booking_link": "https://calendly.com/captclient/callback"
+  },
+  "templates": {
+    "urgent_voicemail_email": "Subject: 🚨 URGENT: High Priority Voicemail\n\nTeam,\n\nWe just received an urgent voicemail that needs immediate attention.\n\n**CONTACT DETAILS:**\nName: {{contact.name}}\nPhone: {{contact.phone}}\nCompany: {{extracted.caller_company}}\n\n**VOICEMAIL DETAILS:**\nReceived: {{voicemail.timestamp}}\nDuration: {{voicemail.duration}} seconds\nPriority: HIGH\n\n**AI ANALYSIS:**\n- Intent: {{extracted.primary_intent}}\n- Urgency: {{extracted.urgency_level}}\n- Sentiment: {{extracted.sentiment}}\n- Service Interest: {{extracted.mentioned_service}}\n\n**THEIR REQUEST:**\n{{extracted.specific_request}}\n\n**FULL TRANSCRIPT:**\n{{voicemail_transcript}}\n\n**ACTION REQUIRED:**\nCall {{contact.phone}} within 1 hour.\n\nVoicemail audio is attached.\n\n---\nAutomatically generated by Capture Client AI System",
+    "urgent_voicemail_slack": "🚨 **URGENT VOICEMAIL** 🚨\n\n**{{contact.name}}** | {{contact.phone}}\n\n**Intent:** {{extracted.primary_intent}}\n**Urgency:** {{extracted.urgency_level}}\n**Sentiment:** {{extracted.sentiment}}\n\n**Request:**\n{{extracted.specific_request}}\n\n🎧 <{{voicemail.audio_url}}|Listen to voicemail>\n\n⚠️ *ACTION REQUIRED: Call back within 1 hour*",
+    "sales_voicemail_email": "Subject: Sales Inquiry Voicemail: {{contact.name}}\n\nTeam,\n\nNew sales inquiry voicemail received.\n\n**CONTACT:**\nName: {{contact.name}}\nPhone: {{contact.phone}}\nCompany: {{extracted.caller_company}}\n\n**DETAILS:**\nReceived: {{voicemail.timestamp}}\nInterest: {{extracted.mentioned_service}}\nSentiment: {{extracted.sentiment}}\n\n**THEIR INQUIRY:**\n{{extracted.specific_request}}\n\n**TRANSCRIPT:**\n{{voicemail_transcript}}\n\n**NEXT STEPS:**\nCall back within 4 hours to discuss {{extracted.mentioned_service}}.\n\nVoicemail audio attached.\n\n---\nCapture Client AI System",
+    "sales_voicemail_slack": "💰 **Sales Inquiry Voicemail**\n\n**{{contact.name}}** from {{extracted.caller_company}}\n📞 {{contact.phone}}\n\n**Interest:** {{extracted.mentioned_service}}\n**Request:** {{extracted.specific_request}}\n\n🎧 <{{voicemail.audio_url}}|Listen>\n\n*Follow up within 4 hours*",
+    "standard_voicemail_email": "Subject: New Voicemail: {{contact.name}}\n\nTeam,\n\nNew voicemail received.\n\n**CONTACT:**\n{{contact.name}} ({{contact.phone}})\n\n**RECEIVED:** {{voicemail.timestamp}}\n**INTENT:** {{extracted.primary_intent}}\n\n**MESSAGE:**\n{{voicemail_transcript}}\n\n**ACTION:**\nReturn call within 24 hours.\n\nVoicemail audio attached.\n\n---\nCapture Client"
+  },
+  "error_handling": {
+    "on_transcription_error": {
+      "action": "fallback_notification",
+      "notification": {
+        "type": "email",
+        "recipient": "{{custom_values.sales_team_email}}",
+        "subject": "Voicemail Received (Transcription Failed)",
+        "body": "A voicemail was received from {{contact.phone}} but transcription failed. Please listen to the audio manually: {{voicemail.audio_url}}"
+      }
+    },
+    "on_error": {
+      "action": "notify_admin",
+      "create_manual_task": true
+    }
+  },
+  "analytics": {
+    "track_events": [
+      "voicemail_received",
+      "voicemail_transcribed",
+      "intent_detected",
+      "priority_assigned",
+      "notification_sent",
+      "auto_response_sent",
+      "task_created",
+      "workflow_triggered"
+    ],
+    "track_metrics": {
+      "transcription_accuracy": "quality of transcription",
+      "intent_accuracy": "accuracy of intent detection",
+      "average_callback_time": "time from voicemail to callback",
+      "response_rate": "percentage of voicemails responded to",
+      "priority_distribution": "breakdown of high/medium/normal priority"
+    }
+  }
+}

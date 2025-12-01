@@ -1,0 +1,354 @@
+{
+  "agentId": "sms-review-requester-001",
+  "agentName": "Capture Client SMS Review Requester Agent",
+  "agentType": "sms",
+  "version": "1.0.0",
+  "status": "active",
+  "description": "Requests reviews from happy clients and handles feedback appropriately via SMS",
+
+  "businessContext": {
+    "businessName": "Capture Client",
+    "businessType": "Marketing Agency - AI Voice Agents and Lead Generation",
+    "location": "Knoxville, TN",
+    "phone": "(865) 346-3339",
+    "email": "info@captureclient.net",
+    "website": "https://capture-client-site.vercel.app/"
+  },
+
+  "reviewPlatforms": {
+    "google": {
+      "name": "Google Business Profile",
+      "url": "https://g.page/r/[YOUR_GOOGLE_PLACE_ID]/review",
+      "priority": 1
+    },
+    "facebook": {
+      "name": "Facebook",
+      "url": "https://www.facebook.com/[YOUR_FB_PAGE]/reviews",
+      "priority": 2
+    },
+    "trustpilot": {
+      "name": "Trustpilot",
+      "url": "[YOUR_TRUSTPILOT_URL]",
+      "priority": 3
+    }
+  },
+
+  "agentObjectives": [
+    "Collect reviews from satisfied clients at optimal moments",
+    "Make the review process as easy as possible",
+    "Handle negative feedback privately before it becomes a public review",
+    "Build social proof and online reputation",
+    "Maintain high review ratings and volume"
+  ],
+
+  "conversationConfig": {
+    "tone": "grateful and authentic",
+    "responseStyle": "brief and appreciative",
+    "maxResponseLength": 320,
+    "personalization": true,
+    "useEmojis": "moderate"
+  },
+
+  "optimalTimingTriggers": {
+    "afterSuccessfulDemo": {
+      "delay": "1 hour",
+      "condition": "Demo marked as 'went well' or positive sentiment detected"
+    },
+    "afterProjectMilestone": {
+      "delay": "2 hours",
+      "condition": "Key milestone achieved (e.g., agent went live, campaign launched)"
+    },
+    "afterPositiveFeedback": {
+      "delay": "immediate",
+      "condition": "Client gives unsolicited positive feedback"
+    },
+    "monthlyCheckIn": {
+      "delay": "30 days from last request",
+      "condition": "Client has been active, no negative interactions"
+    },
+    "afterProblemResolution": {
+      "delay": "24 hours",
+      "condition": "Support ticket closed, client expressed satisfaction"
+    }
+  },
+
+  "messageTemplates": {
+    "initialRequest": {
+      "standard": "Hi {firstName}! 👋 We're so glad you're loving your AI voice agent! Would you mind taking 60 seconds to share your experience on Google? It helps other businesses discover us!\n\n{reviewLink}\n\nThanks so much!",
+
+      "afterMilestone": "{firstName}, congrats on {milestone}! 🎉 Since you're seeing great results, would you share your experience in a quick Google review? It would mean the world to us!\n\n{reviewLink}",
+
+      "personal": "Hey {firstName}! It's been awesome working with you and {businessName}. If you've got a minute, we'd love a review sharing your experience. No pressure though!\n\n{reviewLink}\n\nThanks either way! 😊",
+
+      "withIncentive": "Hi {firstName}! Would you mind leaving us a quick review? As a thank you, we'll send you {incentive}. Here's the link:\n\n{reviewLink}\n\nReally appreciate your support!"
+    },
+
+    "sentimentCheck": {
+      "beforeRequest": "Hey {firstName}! Quick question - on a scale of 1-10, how happy are you with {service} so far?",
+
+      "afterResponse": {
+        "promoter": "That's awesome to hear! 🌟 Would you mind sharing that in a Google review? It really helps us grow!\n\n{reviewLink}",
+        "passive": "Thanks for the feedback! Glad it's working well. Anything we could do to make it a 10/10 for you?",
+        "detractor": "I really appreciate your honesty. I'd love to understand what's not meeting your expectations. Can we schedule a quick call to discuss?"
+      }
+    },
+
+    "followUp": {
+      "gentle": "No worries if you haven't had a chance yet! Just wanted to make sure you got the review link: {reviewLink}\n\nTotally understand if you're busy though! 😊",
+
+      "lastAttempt": "Hey {firstName}, last friendly reminder about that review if you have a spare minute! If not, no problem at all - we still appreciate you!\n\n{reviewLink}"
+    },
+
+    "gratitude": {
+      "afterReview": "🙏 Thank you SO much for the amazing review, {firstName}! It means everything to us and really helps other businesses find us. We're lucky to work with you!",
+
+      "afterDetailedReview": "{firstName}, wow! That review was incredible - thank you for taking the time to write such thoughtful feedback! 🌟 We're sharing this with the whole team!",
+
+      "referenceReview": "Your review was so helpful, {firstName}! We've already had 2 people mention they found us because of your feedback. Thank you! 🙌"
+    },
+
+    "negativeFeedback": {
+      "detractorResponse": "I'm really sorry to hear that, {firstName}. Your satisfaction is our top priority. Can I have {managerName} reach out to you directly to make this right?",
+
+      "concernAcknowledged": "Thanks for being honest, {firstName}. I've flagged this for our team and {pointOfContact} will call you within 24 hours to discuss solutions. We want to fix this!",
+
+      "afterResolution": "I'm so glad we could resolve that, {firstName}! Now that things are back on track, would you feel comfortable sharing your updated experience? No pressure!\n\n{reviewLink}"
+    },
+
+    "reviewOptions": {
+      "multiple": "Thanks so much, {firstName}! Which platform is easiest for you?\n\n1️⃣ Google (most helpful!)\n2️⃣ Facebook\n3️⃣ Trustpilot\n\nJust reply with the number!",
+
+      "sendLink": "Perfect! Here's your {platform} review link:\n\n{reviewLink}\n\nThank you! 🙏"
+    }
+  },
+
+  "scoringLogic": {
+    "npsScale": {
+      "promoter": {
+        "range": "9-10",
+        "action": "Request review immediately"
+      },
+      "passive": {
+        "range": "7-8",
+        "action": "Ask what would make it better, then request review later"
+      },
+      "detractor": {
+        "range": "0-6",
+        "action": "Escalate to manager, DO NOT request review"
+      }
+    }
+  },
+
+  "reviewRequestStrategy": {
+    "maxRequests": 3,
+    "timeBetweenRequests": {
+      "first_to_second": "3 days",
+      "second_to_third": "7 days"
+    },
+    "stopRequesting": [
+      "Review submitted",
+      "Client opts out",
+      "Client expresses annoyance",
+      "After 3 attempts with no response",
+      "Negative sentiment detected"
+    ]
+  },
+
+  "workflows": {
+    "happyClientFlow": [
+      {
+        "step": 1,
+        "action": "Send sentiment check (1-10 rating)",
+        "waitForResponse": true
+      },
+      {
+        "step": 2,
+        "condition": "if_score_9_or_10",
+        "action": "Send review request with link",
+        "delay": "immediate"
+      },
+      {
+        "step": 3,
+        "condition": "if_no_response_after_3_days",
+        "action": "Send gentle follow-up reminder"
+      },
+      {
+        "step": 4,
+        "condition": "if_still_no_response_after_7_days",
+        "action": "Send final reminder, then stop"
+      },
+      {
+        "step": 5,
+        "condition": "if_review_detected",
+        "action": "Send thank you message"
+      }
+    ],
+
+    "unhappyClientFlow": [
+      {
+        "step": 1,
+        "action": "Send sentiment check (1-10 rating)",
+        "waitForResponse": true
+      },
+      {
+        "step": 2,
+        "condition": "if_score_6_or_below",
+        "action": "Apologize and escalate to manager"
+      },
+      {
+        "step": 3,
+        "action": "Manager resolves issue"
+      },
+      {
+        "step": 4,
+        "condition": "if_issue_resolved",
+        "delay": "7_days",
+        "action": "Re-check satisfaction score"
+      },
+      {
+        "step": 5,
+        "condition": "if_now_9_or_10",
+        "action": "Request review"
+      }
+    ],
+
+    "directRequestFlow": [
+      {
+        "step": 1,
+        "trigger": "positive_milestone_or_feedback",
+        "action": "Send direct review request with link"
+      },
+      {
+        "step": 2,
+        "condition": "if_review_left",
+        "action": "Send thank you message"
+      },
+      {
+        "step": 3,
+        "condition": "if_no_response_after_3_days",
+        "action": "Send gentle reminder"
+      }
+    ]
+  },
+
+  "responseHandling": {
+    "positive": {
+      "keywords": ["yes", "sure", "okay", "happy to", "of course", "will do"],
+      "action": "Send review link immediately, express gratitude"
+    },
+    "needsLink": {
+      "keywords": ["link", "where", "how", "send me"],
+      "action": "Resend review link with simple instructions"
+    },
+    "busy": {
+      "keywords": ["busy", "later", "remind me", "not now"],
+      "action": "Schedule follow-up in 3 days, be understanding"
+    },
+    "negative": {
+      "keywords": ["no", "don't want to", "not interested", "annoying"],
+      "action": "Apologize, stop requesting, mark as do not request"
+    },
+    "feedback": {
+      "keywords": ["but", "however", "issue", "problem", "concern"],
+      "action": "Acknowledge feedback, escalate to appropriate team member"
+    }
+  },
+
+  "triggers": {
+    "keywords": {
+      "positive": ["love", "great", "amazing", "excellent", "perfect", "happy", "satisfied"],
+      "negative": ["disappointed", "frustrated", "issue", "problem", "not working", "bad"],
+      "neutral": ["okay", "fine", "alright", "good"],
+      "review_mention": ["review", "feedback", "rating", "testimonial"]
+    }
+  },
+
+  "routingRules": {
+    "escalateToManager": {
+      "conditions": [
+        "NPS score of 6 or below",
+        "Client expresses dissatisfaction",
+        "Complaint or negative feedback",
+        "Request to speak with manager"
+      ]
+    },
+    "addToAdvocatesList": {
+      "conditions": [
+        "NPS score of 10",
+        "Left detailed positive review",
+        "Referred other clients",
+        "Provided testimonial or case study"
+      ]
+    }
+  },
+
+  "integrations": {
+    "ghl": {
+      "tags": {
+        "reviewRequested": "review-requested",
+        "reviewCompleted": "review-completed",
+        "npsPromoter": "nps-promoter",
+        "npsPassive": "nps-passive",
+        "npsDetractor": "nps-detractor",
+        "doNotRequestReview": "do-not-request-review"
+      },
+      "customFields": {
+        "npsScore": "nps_score",
+        "reviewRequestCount": "review_request_count",
+        "lastReviewRequest": "last_review_request_date",
+        "reviewPlatform": "review_platform",
+        "reviewURL": "review_url"
+      },
+      "webhooks": {
+        "newReviewDetected": "trigger_thank_you_message"
+      }
+    }
+  },
+
+  "reviewIncentives": {
+    "enabled": false,
+    "note": "Check compliance - some platforms prohibit incentivized reviews",
+    "alternatives": [
+      "Entry into monthly drawing",
+      "Donation to charity of their choice",
+      "Early access to new features",
+      "Free month of service (for exceptional detailed reviews)"
+    ]
+  },
+
+  "personalizationVariables": {
+    "required": ["firstName"],
+    "optional": [
+      "businessName",
+      "service",
+      "milestone",
+      "reviewLink",
+      "platform",
+      "incentive",
+      "managerName",
+      "pointOfContact"
+    ]
+  },
+
+  "complianceAndSafety": {
+    "authenticReviewsOnly": true,
+    "noFakeReviews": true,
+    "disclosureRequired": "If offering incentives, disclose per FTC guidelines",
+    "respectOptOuts": true,
+    "platformGuidelines": "Follow each platform's review policies",
+    "neverCoerce": "Never pressure or guilt clients into leaving reviews"
+  },
+
+  "analytics": {
+    "trackMetrics": [
+      "review_request_rate",
+      "review_completion_rate",
+      "average_nps_score",
+      "promoter_percentage",
+      "detractor_percentage",
+      "average_star_rating",
+      "time_to_review",
+      "platform_preference"
+    ]
+  }
+}

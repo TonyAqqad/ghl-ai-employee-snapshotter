@@ -1,0 +1,354 @@
+{
+  "workflowId": "winback-sequence-001",
+  "workflowName": "Win-Back Sequence",
+  "version": "1.0.0",
+  "status": "active",
+  "description": "Re-engage lost opportunities with new angles, special offers, and value propositions",
+
+  "trigger": {
+    "type": "multiple",
+    "conditions": [
+      "Opportunity marked as 'Lost'",
+      "Chose competitor",
+      "Went dark after demo",
+      "Explicitly said no",
+      "No engagement for 90+ days"
+    ],
+    "waitPeriod": "90 days before starting sequence"
+  },
+
+  "objectives": [
+    "Re-open conversations with lost prospects",
+    "Address previous objections with new information",
+    "Showcase improvements, new features, or results",
+    "Offer incentives to reconsider",
+    "Win back 10-15% of lost opportunities"
+  ],
+
+  "sequenceStrategy": {
+    "approach": "Fresh angle, not same old pitch",
+    "tone": "Humble, helpful, not pushy",
+    "value": "Lead with value, not ask",
+    "timing": "Space out touches over 60 days"
+  },
+
+  "sequence": [
+    {
+      "step": 1,
+      "name": "The Fresh Start",
+      "delay": "0 days",
+      "type": "sms",
+      "message": "Hey {{first_name}}, it's been a while since we talked about AI voice agents for {{business_name}}.\n\nI know timing wasn't right before (or you went another direction), but wanted to check in:\n\nHas anything changed on your end? Or did you find the solution you needed?",
+      "waitForResponse": true,
+      "goal": "Low-pressure check-in, acknowledge past",
+      "personalization": {
+        "first_name": "required",
+        "business_name": "required"
+      }
+    },
+
+    {
+      "step": 2,
+      "name": "New Value Proposition",
+      "delay": "5 days",
+      "type": "sms",
+      "condition": "if_no_negative_response",
+      "message": "{{first_name}}, a lot has changed since we last spoke:\n\n{{new_developments}}\n\nThought you might be interested, especially if {{previous_objection}} was your concern. We've solved that now.\n\nWorth another look?",
+      "waitForResponse": true,
+      "goal": "Show we've improved, address past objections",
+      "newDevelopments": [
+        "New pricing tier for businesses your size",
+        "Integration with {{platform_they_use}}",
+        "Case studies from {{their_industry}}",
+        "New features that address {{pain_point}}"
+      ]
+    },
+
+    {
+      "step": 3,
+      "name": "Social Proof Bomb",
+      "delay": "12 days",
+      "type": "sms",
+      "condition": "if_any_engagement",
+      "message": "Quick update, {{first_name}}:\n\nWe just helped {{competitor_or_similar_business}} in {{city/industry}} increase their booked appointments by {{percentage}}%.\n\nThey were skeptical too, but here's what changed their mind: {{key_benefit}}\n\nInterested in hearing their story?",
+      "waitForResponse": true,
+      "goal": "Show competitors/peers are succeeding"
+    },
+
+    {
+      "step": 4,
+      "name": "The Honest Approach",
+      "delay": "20 days",
+      "type": "sms",
+      "condition": "if_still_no_commitment",
+      "message": "{{first_name}}, I'll be honest with you:\n\nI know we weren't the right fit last time. Maybe we still aren't. But I'd hate for you to miss out on {{big_benefit}} because of {{old_objection}}.\n\nCan I ask - what would it take for this to be a no-brainer for you?",
+      "waitForResponse": true,
+      "goal": "Open dialogue, understand true barriers"
+    },
+
+    {
+      "step": 5,
+      "name": "Special Offer",
+      "delay": "30 days",
+      "type": "sms",
+      "condition": "if_showing_interest",
+      "message": "{{first_name}}, wanted to run something by you:\n\n{{special_offer}}\n\nThis is only available this month, and I immediately thought of you since we'd talked before.\n\nWant to discuss if it makes sense for {{business_name}}?",
+      "waitForResponse": true,
+      "goal": "Create urgency with limited-time offer",
+      "offerTypes": [
+        "First month free",
+        "50% off setup fee",
+        "Extended trial period",
+        "Bundled discount",
+        "Locked-in pricing for 12 months"
+      ]
+    },
+
+    {
+      "step": 6,
+      "name": "Cost of Inaction",
+      "delay": "45 days",
+      "type": "sms",
+      "condition": "if_no_negative_response",
+      "message": "{{first_name}}, quick thought exercise:\n\nIf you get {{estimated_leads}} leads/month and lose just 30% due to slow response (industry average), that's {{lost_revenue}} in missed revenue.\n\nOver a year? {{annual_lost_revenue}}.\n\nNot trying to be pushy - just want you to see the real cost of waiting. Make sense?",
+      "waitForResponse": true,
+      "goal": "Quantify opportunity cost"
+    },
+
+    {
+      "step": 7,
+      "name": "Final Value Shot",
+      "delay": "60 days",
+      "type": "sms",
+      "condition": "if_any_engagement_but_no_conversion",
+      "message": "Last message from me, {{first_name}} - promise! 😊\n\nHere's a resource I think you'll find valuable even if you don't work with us: {{helpful_resource}}\n\nIf you ever want to revisit the conversation, you know where to find me.\n\nBest of luck with {{business_name}}!",
+      "waitForResponse": true,
+      "goal": "End on helpful note, leave door open"
+    },
+
+    {
+      "step": 8,
+      "name": "Final Decision Point",
+      "delay": "65 days",
+      "type": "conditional_routing",
+      "conditions": {
+        "if_re_engaged": {
+          "action": "escalate_to_sales",
+          "tag": "winback-success",
+          "message": "Awesome! Let me get you reconnected with our team. When's a good time for a quick call?"
+        },
+        "if_not_interested": {
+          "action": "archive_for_long_term",
+          "tag": "winback-attempted",
+          "revisitIn": "365 days"
+        },
+        "if_no_response": {
+          "action": "send_final_opt_message",
+          "tag": "winback-no-response"
+        }
+      }
+    }
+  ],
+
+  "segmentationByLostReason": {
+    "chose_competitor": {
+      "strategy": "Show why we're better now",
+      "messages": [
+        "How's {{competitor_name}} working out for you? I hear they struggle with {{common_competitor_weakness}}. We've nailed that.",
+        "Fun fact: 40% of {{competitor_name}} users switch to us within a year. Usually because of {{our_advantage}}. Curious why?"
+      ]
+    },
+
+    "price_objection": {
+      "strategy": "Show ROI and offer discount",
+      "messages": [
+        "I know price was a concern before. But here's the thing: our clients see an average {{roi_percentage}}% ROI within {{timeframe}}. That turns the price into profit.",
+        "Quick Q: If I could show you how to pay for this with just {{percentage}}% more conversions, would that change things?"
+      ]
+    },
+
+    "timing_issue": {
+      "strategy": "Check if timing is better now",
+      "messages": [
+        "You mentioned timing wasn't right {{months_ago}} months ago. Has that changed? We're seeing huge demand in Q{{quarter}}.",
+        "Just checking - is now a better time to explore this? I know business priorities shift."
+      ]
+    },
+
+    "went_dark": {
+      "strategy": "Low-pressure re-engagement",
+      "messages": [
+        "{{first_name}}, you kind of ghosted us after the demo! 😅 Everything okay? Did we miss something important?",
+        "Noticed we lost touch after {{last_interaction}}. No hard feelings! Just wanted to see if there was anything we could've done differently?"
+      ]
+    },
+
+    "not_decision_maker": {
+      "strategy": "Ask to connect with right person",
+      "messages": [
+        "{{first_name}}, I know you weren't the final decision maker. Any chance you could connect me with {{decision_maker_title}}? I promise I'll make it worth their time.",
+        "Quick favor - who at {{business_name}} handles decisions about {{service_category}}? I'd love to get on their radar."
+      ]
+    }
+  },
+
+  "triggerBasedReEngagement": {
+    "competitor_issues": {
+      "trigger": "Mention of competitor problems on social/reviews",
+      "message": "Hey {{first_name}}, saw some chatter about issues with {{competitor}}. If you're experiencing those, we'd love to help. Many former {{competitor}} clients switch to us. Want to chat?"
+    },
+
+    "business_milestone": {
+      "trigger": "Company expansion, funding, new location",
+      "message": "Congrats on {{milestone}}, {{first_name}}! 🎉 With growth comes more leads to handle. Now might be the perfect time to revisit AI voice agents. Interested in seeing how we scale with you?"
+    },
+
+    "industry_trend": {
+      "trigger": "Major industry change or regulation",
+      "message": "{{first_name}}, with {{industry_change}}, a lot of {{industry}} businesses are turning to AI to stay competitive. We've helped {{number}} companies adapt. Want to discuss how this affects {{business_name}}?"
+    }
+  },
+
+  "specialOffers": {
+    "winbackDiscount": {
+      "offer": "We-want-you-back discount: 25% off first 3 months",
+      "conditions": "Lost opportunity from 90+ days ago",
+      "urgency": "Available this month only"
+    },
+
+    "competitorSwitchDeal": {
+      "offer": "We'll match your current rate + add extra features free",
+      "conditions": "Currently using a competitor",
+      "bonus": "Free migration and setup"
+    },
+
+    "pilotProgram": {
+      "offer": "30-day pilot with full refund if not satisfied",
+      "conditions": "Any lost opportunity",
+      "risk": "Zero risk, prove it works first"
+    },
+
+    "bundleOffer": {
+      "offer": "AI Voice Agent + Lead Gen package at 30% discount",
+      "conditions": "Interested in multiple services",
+      "value": "Complete solution at reduced cost"
+    }
+  },
+
+  "responseHandling": {
+    "positive_response": {
+      "keywords": ["yes", "interested", "maybe", "tell me more", "things changed"],
+      "action": "escalate_to_sales_immediately",
+      "message": "That's great! Let me get you reconnected with {{sales_rep}}. They'll get you up to speed on everything new. When works for a quick call?"
+    },
+
+    "still_not_ready": {
+      "keywords": ["not now", "still not ready", "timing", "maybe later"],
+      "action": "schedule_future_check_in",
+      "message": "Totally understand! When should I check back in? 3 months? 6 months? Or just keep you on our quarterly newsletter?"
+    },
+
+    "happy_with_competitor": {
+      "keywords": ["happy with", "using", "already have", "competitor_name"],
+      "action": "gracefully_exit_but_stay_connected",
+      "message": "That's awesome you found something that works! If anything changes or you want to compare notes, we're here. Mind if I add you to our quarterly newsletter for industry insights?"
+    },
+
+    "wants_more_info": {
+      "action": "provide_resources_and_followup",
+      "message": "Sure thing! What specific info would be most helpful? Pricing? Case studies? ROI calculator? Or just want to see a quick demo?"
+    },
+
+    "negative_response": {
+      "keywords": ["not interested", "stop", "remove", "don't contact"],
+      "action": "apologize_and_remove",
+      "message": "Got it - my apologies for the reach out. You're removed from our list. If you ever need us in the future, we'll be here!"
+    }
+  },
+
+  "successMetrics": {
+    "winbackRate": "10-15% of lost opportunities",
+    "timeToWinback": "Average 45-60 days",
+    "winbackValue": "Typically higher LTV than new customers",
+    "bestPerformingMessages": "Track which messages get most engagement"
+  },
+
+  "integrations": {
+    "ghl": {
+      "tags": {
+        "winbackActive": "winback-sequence-active",
+        "winbackSuccess": "winback-won",
+        "winbackFailed": "winback-failed",
+        "competitorUser": "using-competitor",
+        "priceObjection": "winback-price-objection"
+      },
+      "customFields": {
+        "lostReason": "lost_reason",
+        "competitorName": "competitor_name",
+        "previousObjection": "previous_objection",
+        "winbackAttempts": "winback_attempt_count",
+        "lastWinbackDate": "last_winback_attempt",
+        "winbackOfferSent": "winback_offer_type"
+      },
+      "opportunities": {
+        "reopenIfEngaged": true,
+        "updateLostReason": true,
+        "logActivity": true
+      }
+    }
+  },
+
+  "personalizationTokens": {
+    "required": [
+      "{{first_name}}",
+      "{{business_name}}"
+    ],
+    "optional": [
+      "{{previous_objection}}",
+      "{{new_developments}}",
+      "{{competitor_name}}",
+      "{{competitor_or_similar_business}}",
+      "{{city}}",
+      "{{industry}}",
+      "{{percentage}}",
+      "{{key_benefit}}",
+      "{{big_benefit}}",
+      "{{old_objection}}",
+      "{{special_offer}}",
+      "{{estimated_leads}}",
+      "{{lost_revenue}}",
+      "{{annual_lost_revenue}}",
+      "{{helpful_resource}}",
+      "{{months_ago}}",
+      "{{quarter}}",
+      "{{last_interaction}}",
+      "{{decision_maker_title}}",
+      "{{service_category}}",
+      "{{milestone}}",
+      "{{industry_change}}",
+      "{{number}}",
+      "{{sales_rep}}"
+    ]
+  },
+
+  "complianceSettings": {
+    "waitPeriodBeforeStart": "90 days from lost date",
+    "maxWinbackAttempts": 1,
+    "respectOptOuts": true,
+    "neverHarass": true,
+    "respectDoNotContact": true
+  },
+
+  "analytics": {
+    "trackMetrics": [
+      "winback_rate",
+      "response_rate",
+      "time_to_winback",
+      "winback_by_lost_reason",
+      "offer_effectiveness",
+      "message_performance",
+      "cost_per_winback",
+      "winback_ltv"
+    ]
+  }
+}

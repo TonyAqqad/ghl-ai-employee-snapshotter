@@ -1,0 +1,205 @@
+{
+  "workflowName": "Proposal Follow-up Sequence",
+  "workflowId": "cc-proposal-followup-001",
+  "description": "7-day follow-up sequence after proposal is sent",
+  "version": "1.0",
+  "trigger": {
+    "type": "tag_added",
+    "conditions": [
+      {
+        "field": "tags",
+        "operator": "contains",
+        "value": "proposal_sent"
+      }
+    ]
+  },
+  "steps": [
+    {
+      "stepId": "proposal-001",
+      "stepName": "Proposal Sent Confirmation",
+      "type": "email",
+      "delay": 0,
+      "delayUnit": "minutes",
+      "subject": "Your Custom AI Voice Agent Proposal",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "proposal-email-01",
+      "preheader": "Everything you need to make an informed decision",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "Thanks again for taking the time to explore how Capture Client can help automate your lead generation.\n\nYOUR CUSTOM PROPOSAL IS READY:",
+        "cta": "View Your Proposal",
+        "ctaUrl": "{{proposal_link}}",
+        "additionalInfo": "WHAT'S INCLUDED:\n- Recommended AI Voice Agent package\n- Custom pricing for your business\n- Implementation timeline (48 hours)\n- Expected ROI projections\n- Integration & setup details\n- 30-day money-back guarantee\n\nTAKE YOUR TIME:\nReview the proposal at your convenience. There's no pressure - we want you to make the best decision for your business.\n\nQUESTIONS?\nI'm here to help clarify anything:\n- Reply to this email\n- Schedule a call: {{calendar_link}}\n- Call us: {{phone_number}}\n\nCOMMON QUESTIONS WE HEAR:\n\n\"How long is the commitment?\"\nMonth-to-month with 30-day money-back guarantee. Cancel anytime.\n\n\"What if it doesn't work for us?\"\nFull refund within 30 days, no questions asked.\n\n\"How quickly can we get started?\"\n48 hours from signature to go-live.\n\n\"Can we customize it later?\"\nAbsolutely! We optimize and adjust based on your results.\n\nSPECIAL OFFER:\nAccept within 7 days and receive:\n- Setup fee waived ($500 value)\n- Month 1 CRM included (free)\n- Priority onboarding\n\nI'll check back in a couple days to see if you have questions.",
+        "signature": "Best regards,\n\nThe Capture Client Team\nteam@captureclient.net"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      },
+      "actions": [
+        {
+          "type": "track_proposal_view",
+          "proposalId": "{{proposal_id}}"
+        }
+      ]
+    },
+    {
+      "stepId": "proposal-002",
+      "stepName": "Day 2 Check-in",
+      "type": "email",
+      "delay": 2,
+      "delayUnit": "days",
+      "conditions": [
+        {
+          "field": "proposal_status",
+          "operator": "not_equals",
+          "value": "accepted"
+        }
+      ],
+      "subject": "Quick Question About Your Proposal",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "proposal-email-02",
+      "preheader": "Making sure you have everything you need",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "I wanted to check in and see if you had a chance to review your proposal.\n\nProposal Link: {{proposal_link}}\n\nI also wanted to address a few things that commonly come up:\n\nON PRICING:\nOur packages range from $999-$2,195/month. Most clients see 3-5x ROI within 90 days through:\n- Increased lead conversion (average 67% boost)\n- Reduced staffing costs\n- Better lead qualification\n- 24/7 availability\n\nON IMPLEMENTATION:\nWe handle everything:\n- Custom AI training (your scripts, your brand voice)\n- CRM integration or setup\n- Phone system connection\n- Team training\n- Ongoing optimization\n\nTimeline: 48 hours to go-live\n\nON RISK:\nZero risk with our 30-day money-back guarantee. If you're not seeing results, we refund everything.\n\nIS THERE ANYTHING HOLDING YOU BACK?\n\nCommon concerns we can address:\n- \"Will leads know it's AI?\" - We design for natural conversation and transparency\n- \"What about complex questions?\" - Seamless handoff to your team when needed\n- \"Can it handle our industry?\" - We've worked with 500+ businesses across 20+ industries\n- \"What if we need changes?\" - Unlimited optimization included in all packages\n\nWant to discuss any of this?",
+        "cta": "Schedule a Quick Call",
+        "ctaUrl": "{{calendar_link}}",
+        "secondaryCta": "Reply With Questions",
+        "secondaryCtaUrl": "mailto:team@captureclient.net?subject=Questions about proposal",
+        "signature": "Here to help,\n\nThe Capture Client Team"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "proposal-003",
+      "stepName": "Day 5 - Address Concerns",
+      "type": "email",
+      "delay": 5,
+      "delayUnit": "days",
+      "conditions": [
+        {
+          "field": "proposal_status",
+          "operator": "not_equals",
+          "value": "accepted"
+        }
+      ],
+      "subject": "Addressing the Top 5 Concerns About AI Voice Agents",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "proposal-email-03",
+      "preheader": "Real answers to real concerns",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "I haven't heard back from you, which is totally fine! Decision-making takes time.\n\nI wanted to share the top 5 concerns we hear from prospects and how we address them:\n\nCONCERN #1: \"It sounds too good to be true\"\nREALITY: We have 500+ active clients with a 4.9/5 rating. Here are real results:\n- Nashville marketing agency: 67% more qualified leads\n- Knoxville real estate team: 42% revenue increase in 90 days\n- Atlanta home services: 80% reduction in missed opportunities\n\nCONCERN #2: \"What if it doesn't work for my business?\"\nREALITY: 30-day money-back guarantee. We've only had 3 refund requests in 2 years (all were bad-fit industries we shouldn't have accepted).\n\nCONCERN #3: \"My team won't like it\"\nREALITY: Your team will LOVE it because:\n- They stop doing repetitive qualification calls\n- They only talk to pre-qualified, interested leads\n- They have more time for actual selling\n- Their close rates go up\n\nCONCERN #4: \"The technology is too complex\"\nREALITY: You don't need to understand the tech. We handle:\n- All setup and integration (48 hours)\n- Ongoing maintenance and updates\n- Training and support\n- Continuous optimization\n\nYou just watch the results come in.\n\nCONCERN #5: \"I need to think about it / talk to my team\"\nREALITY: Absolutely! This is a business decision. Take your time.\n\nBUT CONSIDER:\nEvery day you wait:\n- Competitors might be using AI (they probably are)\n- You're losing 30% of leads to slow response times\n- Your team is burning out on repetitive calls\n- Your ad spend isn't maximized\n\nCOST OF DELAY:\nIf you're spending $3,000/month on ads and losing 30% to poor follow-up, that's $900/month wasted. Over a year: $10,800.\n\nOur most expensive package is $2,195/month and pays for itself in recaptured leads alone.\n\nYOUR PROPOSAL:\n{{proposal_link}}\n\nSPECIAL OFFER EXPIRES IN 2 DAYS:\n- $500 setup fee waived\n- Month 1 CRM free\n- Priority onboarding\n\nWhat's the real hesitation?",
+        "cta": "Let's Talk It Through",
+        "ctaUrl": "{{calendar_link}}",
+        "secondaryCta": "Accept Proposal Now",
+        "secondaryCtaUrl": "{{proposal_link}}",
+        "signature": "Genuinely here to help,\n\nThe Capture Client Team"
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      }
+    },
+    {
+      "stepId": "proposal-004",
+      "stepName": "Day 7 - Final Follow-up",
+      "type": "email",
+      "delay": 7,
+      "delayUnit": "days",
+      "conditions": [
+        {
+          "field": "proposal_status",
+          "operator": "not_equals",
+          "value": "accepted"
+        }
+      ],
+      "subject": "Last Call: Your Proposal Expires Tonight",
+      "fromName": "Capture Client Team",
+      "fromEmail": "team@captureclient.net",
+      "replyTo": "info@captureclient.net",
+      "templateId": "proposal-email-04",
+      "preheader": "Special offer ends today - $500 setup fee waiver",
+      "content": {
+        "greeting": "Hi {{contact.first_name}},",
+        "body": "This is my final follow-up regarding your AI Voice Agent proposal.\n\nYour special offer expires tonight at midnight:\n- $500 setup fee waived\n- Month 1 CRM free ($197 value)\n- Priority onboarding (48-hour go-live)\n\nTOTAL SAVINGS: $697\n\nYOUR PROPOSAL: {{proposal_link}}\n\nI respect that you may have decided:\n\n✓ \"YES\" - Click below to accept and we'll start tomorrow\n✓ \"NOT NOW\" - That's okay! We'll be here when you're ready\n✓ \"NEED MORE INFO\" - Let's schedule a quick call\n\nWhatever you decide, I appreciate the time you've given us.\n\nA FINAL THOUGHT:\n\nThe businesses thriving in 2024 are the ones embracing AI automation. Not because it's trendy, but because it works.\n\nYour competitors are either:\n1. Already using AI Voice Agents (getting more leads, better conversion)\n2. About to start (they're having the same conversation you are)\n3. Falling behind (losing market share to #1 and #2)\n\nWhere do you want your business to be?\n\nIF YOU'RE READY:",
+        "cta": "Accept Proposal (Save $697)",
+        "ctaUrl": "{{proposal_link}}",
+        "secondaryCta": "Schedule Final Call",
+        "secondaryCtaUrl": "{{calendar_link}}",
+        "additionalInfo": "IF YOU'RE NOT READY:\nNo hard feelings! I'll move you to our monthly newsletter where you'll get:\n- AI automation tips\n- Industry insights\n- Case studies\n- Special offers\n\nYou can reach out anytime: team@captureclient.net\n\nTHANK YOU:\nThank you for considering Capture Client. Whether you move forward now or later (or never), I wish you success in your business.",
+        "signature": "All the best,\n\nThe Capture Client Team\nKnoxville, TN\nteam@captureclient.net\n\nP.S. Reply \"NOT INTERESTED\" and I'll make sure you don't receive any more sales emails from us. We respect your time."
+      },
+      "tracking": {
+        "opens": true,
+        "clicks": true,
+        "replies": true
+      },
+      "actions": [
+        {
+          "type": "check_reply_sentiment",
+          "negativeKeywords": ["not interested", "no thanks", "stop", "unsubscribe"]
+        },
+        {
+          "type": "conditional_tag",
+          "condition": "no_response_7_days",
+          "addTag": "nurture_sequence"
+        }
+      ]
+    }
+  ],
+  "exitConditions": [
+    {
+      "type": "tag_added",
+      "value": "proposal_accepted"
+    },
+    {
+      "type": "tag_added",
+      "value": "customer"
+    },
+    {
+      "type": "tag_added",
+      "value": "unsubscribed"
+    },
+    {
+      "type": "reply_contains",
+      "value": "not interested"
+    }
+  ],
+  "postSequenceActions": [
+    {
+      "condition": "no_response",
+      "action": "add_to_workflow",
+      "workflowId": "cc-reengagement-sequence-001",
+      "delay": 30,
+      "delayUnit": "days"
+    },
+    {
+      "condition": "negative_reply",
+      "action": "add_tag",
+      "value": "not_interested"
+    }
+  ],
+  "analytics": {
+    "trackConversions": true,
+    "conversionGoals": [
+      "proposal_viewed",
+      "proposal_accepted",
+      "follow_up_call_booked"
+    ],
+    "reportingInterval": "daily"
+  }
+}

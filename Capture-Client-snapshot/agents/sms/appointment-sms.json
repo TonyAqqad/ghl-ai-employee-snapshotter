@@ -1,0 +1,332 @@
+{
+  "agentId": "sms-appointment-001",
+  "agentName": "Capture Client SMS Appointment Agent",
+  "agentType": "sms",
+  "version": "1.0.0",
+  "status": "active",
+  "description": "Sends booking confirmations, handles reminders, and processes reschedule/cancel requests via SMS",
+
+  "businessContext": {
+    "businessName": "Capture Client",
+    "businessType": "Marketing Agency - AI Voice Agents and Lead Generation",
+    "location": "Knoxville, TN",
+    "phone": "(865) 346-3339",
+    "email": "info@captureclient.net",
+    "website": "https://capture-client-site.vercel.app/",
+    "timezone": "America/New_York"
+  },
+
+  "agentObjectives": [
+    "Reduce no-shows through timely reminders",
+    "Handle reschedule/cancel requests efficiently",
+    "Provide clear appointment details and preparation info",
+    "Collect confirmation responses",
+    "Route complex requests to appropriate team member"
+  ],
+
+  "conversationConfig": {
+    "tone": "professional, courteous, and helpful",
+    "responseStyle": "clear and concise",
+    "maxResponseLength": 320,
+    "personalization": true,
+    "useEmojis": "minimal"
+  },
+
+  "appointmentTypes": {
+    "discovery_call": {
+      "name": "Discovery Call",
+      "duration": 15,
+      "description": "Brief intro call to discuss your needs",
+      "preparation": "No prep needed - just bring your questions!"
+    },
+    "demo": {
+      "name": "AI Voice Agent Demo",
+      "duration": 30,
+      "description": "Live demo of our AI voice agents in action",
+      "preparation": "Please have a list of your current pain points ready to discuss"
+    },
+    "strategy_session": {
+      "name": "Strategy Session",
+      "duration": 45,
+      "description": "In-depth consultation on your marketing strategy",
+      "preparation": "Bring info about current marketing efforts, budget range, and key goals"
+    },
+    "proposal_review": {
+      "name": "Proposal Review",
+      "duration": 30,
+      "description": "Review custom proposal and pricing",
+      "preparation": "Review the proposal we sent via email before the call"
+    },
+    "onboarding": {
+      "name": "Client Onboarding",
+      "duration": 60,
+      "description": "Kickoff call to set up your AI agent",
+      "preparation": "Have your business info, call scripts, and integration details ready"
+    }
+  },
+
+  "messageTemplates": {
+    "confirmation": {
+      "immediate": "Great news, {firstName}! Your {appointmentType} with Capture Client is confirmed for {date} at {time} {timezone}.\n\n{preparation}\n\nReply CONFIRM to verify, or RESCHEDULE if you need to change it.",
+
+      "withDetails": "{firstName}, you're all set!\n\n📅 {appointmentType}\n🕒 {date} at {time} {timezone}\n👤 Meeting with: {staffName}\n📞 We'll call you at: {phone}\n🔗 Zoom link: {meetingLink}\n\nSee you then! Reply CONFIRM to acknowledge."
+    },
+
+    "reminders": {
+      "24hour": "Hi {firstName}! Reminder: Your {appointmentType} with Capture Client is tomorrow at {time} {timezone}. {preparation}\n\nReply CONFIRM if you're good to go, or RESCHEDULE if something came up.",
+
+      "1hour": "{firstName}, your {appointmentType} starts in 1 hour ({time} {timezone}). We'll {callMethod}. Looking forward to it!",
+
+      "5minute": "{firstName}, we're ready when you are! Your {appointmentType} starts in 5 minutes. {joinInstruction}"
+    },
+
+    "rescheduleRequest": {
+      "fromClient": "No problem, {firstName}! I understand things come up. What day/time works better for you this week?",
+
+      "provideOptions": "I can offer you these times:\n1. {option1}\n2. {option2}\n3. {option3}\n\nReply with the number that works, or suggest another time!",
+
+      "confirmed": "Perfect! I've rescheduled your {appointmentType} to {newDate} at {newTime} {timezone}. You'll get a new confirmation shortly."
+    },
+
+    "cancellation": {
+      "fromClient": "Got it, {firstName}. I've cancelled your {appointmentType} on {date}. No worries at all - would you like to reschedule for a later date?",
+
+      "confirmed": "Your appointment has been cancelled. If you'd like to reconnect in the future, just text us or visit {website}. Thanks!",
+
+      "noShow": "Hi {firstName}, we missed you at your {appointmentType} today at {time}. Everything okay? We'd be happy to reschedule - just let us know what works!"
+    },
+
+    "confirmation": {
+      "request": "Quick confirmation: Are you still good for your {appointmentType} on {date} at {time}? Reply YES to confirm or RESCHEDULE if you need to change it.",
+
+      "received": "Thanks for confirming! We're looking forward to speaking with you on {date} at {time}.",
+
+      "noResponse": "Hi {firstName}, just checking - are we still on for {date} at {time}? Please reply YES to confirm or let me know if you need to reschedule."
+    },
+
+    "postAppointment": {
+      "followup": "Thanks for your time today, {firstName}! It was great learning about {businessName}. {nextSteps}\n\nAny questions? Just reply here!",
+
+      "noShow": "Hi {firstName}, we missed you today. No worries - life happens! Would you like to reschedule? We have openings this week.",
+
+      "feedback": "How was your {appointmentType} with {staffName} today? We'd love your feedback! (1-5 stars is fine)"
+    },
+
+    "technicalSupport": {
+      "zoomIssues": "Having trouble with the Zoom link? Try this: {troubleshootingSteps}. Or call us directly at {phone}.",
+
+      "phoneIssues": "We tried calling but couldn't reach you. Please call us at {phone} or reply with a good number to reach you.",
+
+      "general": "Need help with your appointment? Call us at {phone} or reply here with details."
+    }
+  },
+
+  "triggers": {
+    "keywords": {
+      "confirm": ["yes", "confirm", "confirmed", "good", "ok", "okay", "sure", "yep", "ready"],
+      "reschedule": ["reschedule", "change", "move", "different time", "cancel", "can't make it"],
+      "cancel": ["cancel", "not interested", "no longer need", "changed my mind"],
+      "questions": ["question", "what", "how", "when", "where", "who", "?"],
+      "technical": ["link", "zoom", "not working", "can't join", "problem", "issue", "help"]
+    }
+  },
+
+  "workflows": {
+    "confirmationFlow": [
+      {
+        "trigger": "appointment_booked",
+        "delay": "immediate",
+        "action": "send confirmation message",
+        "requireResponse": true
+      }
+    ],
+
+    "reminderFlow": [
+      {
+        "trigger": "24_hours_before",
+        "action": "send 24-hour reminder",
+        "requireResponse": true
+      },
+      {
+        "trigger": "1_hour_before",
+        "action": "send 1-hour reminder",
+        "requireResponse": false
+      },
+      {
+        "trigger": "5_minutes_before",
+        "action": "send 5-minute reminder",
+        "requireResponse": false,
+        "condition": "only if video meeting"
+      }
+    ],
+
+    "noShowFlow": [
+      {
+        "trigger": "appointment_missed",
+        "delay": "30_minutes_after",
+        "action": "send no-show follow-up"
+      },
+      {
+        "trigger": "no_response_to_noshow",
+        "delay": "24_hours",
+        "action": "send second follow-up"
+      },
+      {
+        "trigger": "still_no_response",
+        "delay": "48_hours",
+        "action": "mark as lost opportunity, send final message"
+      }
+    ],
+
+    "postAppointmentFlow": [
+      {
+        "trigger": "appointment_completed",
+        "delay": "1_hour_after",
+        "action": "send thank you + next steps"
+      },
+      {
+        "trigger": "appointment_completed",
+        "delay": "24_hours_after",
+        "action": "request feedback or review",
+        "condition": "only if positive interaction"
+      }
+    ]
+  },
+
+  "rescheduleLogic": {
+    "maxReschedules": 2,
+    "timeConstraints": {
+      "minNotice": "2 hours",
+      "businessHours": true,
+      "bufferBetweenMeetings": 30
+    },
+    "autoApprove": {
+      "enabled": true,
+      "conditions": [
+        "Within business hours",
+        "More than 2 hours notice",
+        "Slot is available in calendar"
+      ]
+    },
+    "requiresManualReview": [
+      "Reschedule request with less than 2 hours notice",
+      "Third reschedule attempt",
+      "Complex scheduling conflicts"
+    ]
+  },
+
+  "cancellationPolicy": {
+    "gracePeriod": "24 hours",
+    "automaticProcessing": true,
+    "followUpOptions": {
+      "offerReschedule": true,
+      "addToNurture": true,
+      "notifyTeam": true
+    }
+  },
+
+  "responseHandling": {
+    "confirmationResponse": {
+      "positive": ["yes", "confirmed", "ready", "good", "sure"],
+      "action": "log confirmation, update status to confirmed"
+    },
+    "rescheduleResponse": {
+      "keywords": ["reschedule", "move", "change time"],
+      "action": "initiate reschedule flow, present options"
+    },
+    "cancellationResponse": {
+      "keywords": ["cancel", "can't make it", "not coming"],
+      "action": "cancel appointment, offer future reschedule"
+    },
+    "questionResponse": {
+      "action": "attempt to answer, escalate if complex"
+    },
+    "noResponse": {
+      "action": "send follow-up confirmation request 12 hours before appointment"
+    }
+  },
+
+  "routingRules": {
+    "escalateToHuman": {
+      "conditions": [
+        "Technical issues preventing meeting",
+        "Complex reschedule request (multiple people, specific constraints)",
+        "Customer dissatisfaction or complaint",
+        "Request for different staff member",
+        "Payment or billing questions",
+        "After 2 failed reschedule attempts"
+      ]
+    }
+  },
+
+  "integrations": {
+    "ghl": {
+      "calendar": {
+        "sync": true,
+        "createEvents": true,
+        "updateEvents": true,
+        "deleteEvents": true
+      },
+      "tags": {
+        "confirmed": "appointment-confirmed",
+        "reminded": "appointment-reminded",
+        "rescheduled": "appointment-rescheduled",
+        "cancelled": "appointment-cancelled",
+        "noShow": "appointment-no-show",
+        "completed": "appointment-completed"
+      },
+      "customFields": {
+        "confirmationStatus": "appointment_confirmation_status",
+        "remindersSent": "reminders_sent_count",
+        "rescheduleCount": "reschedule_count",
+        "lastAppointmentDate": "last_appointment_date",
+        "appointmentType": "appointment_type"
+      },
+      "opportunities": true
+    }
+  },
+
+  "personalizationVariables": {
+    "required": [
+      "firstName",
+      "appointmentType",
+      "date",
+      "time",
+      "timezone"
+    ],
+    "optional": [
+      "staffName",
+      "phone",
+      "meetingLink",
+      "businessName",
+      "preparation",
+      "callMethod",
+      "joinInstruction",
+      "nextSteps"
+    ]
+  },
+
+  "complianceAndSafety": {
+    "confirmOptIn": "Only send to contacts who have opted in to SMS",
+    "respectTimeZones": true,
+    "quietHours": {
+      "enabled": true,
+      "start": "21:00",
+      "end": "08:00",
+      "timezone": "recipient_timezone"
+    },
+    "dataPrivacy": "Appointment details should be brief, avoid sensitive info in SMS"
+  },
+
+  "analytics": {
+    "trackMetrics": [
+      "confirmation_rate",
+      "reminder_effectiveness",
+      "no_show_rate",
+      "reschedule_rate",
+      "cancellation_rate",
+      "response_time",
+      "show_rate_improvement"
+    ]
+  }
+}
