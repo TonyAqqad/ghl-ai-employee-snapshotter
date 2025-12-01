@@ -1,0 +1,406 @@
+{
+  "$schema": "custom-values-template",
+  "version": "1.0",
+  "description": "Template for all custom values used in GHL AI Employee snapshots",
+
+  "categories": {
+    "business_info": {
+      "label": "Business Information",
+      "description": "Core business details",
+      "values": [
+        {
+          "key": "business_name",
+          "label": "Business Name",
+          "description": "Your company name as it should appear to customers",
+          "type": "string",
+          "required": true,
+          "example": "Acme Plumbing Services",
+          "placeholder": "{{business_name}}"
+        },
+        {
+          "key": "business_type",
+          "label": "Business Type/Industry",
+          "description": "What type of business you are (used in AI prompts)",
+          "type": "string",
+          "required": true,
+          "example": "plumbing company",
+          "placeholder": "{{business_type}}"
+        },
+        {
+          "key": "business_phone",
+          "label": "Business Phone",
+          "description": "Main phone number for customers to call",
+          "type": "phone",
+          "required": true,
+          "example": "+1 (555) 123-4567",
+          "placeholder": "{{business_phone}}"
+        },
+        {
+          "key": "business_email",
+          "label": "Business Email",
+          "description": "Main email for customer communications",
+          "type": "email",
+          "required": true,
+          "example": "info@acmeplumbing.com",
+          "placeholder": "{{business_email}}"
+        },
+        {
+          "key": "business_address",
+          "label": "Business Address",
+          "description": "Full street address",
+          "type": "string",
+          "required": true,
+          "example": "123 Main Street, Suite 100, Anytown, ST 12345",
+          "placeholder": "{{business_address}}"
+        },
+        {
+          "key": "business_city",
+          "label": "City",
+          "description": "City where business is located",
+          "type": "string",
+          "required": true,
+          "example": "Anytown",
+          "placeholder": "{{business_city}}"
+        },
+        {
+          "key": "business_state",
+          "label": "State/Province",
+          "description": "State or province",
+          "type": "string",
+          "required": true,
+          "example": "California",
+          "placeholder": "{{business_state}}"
+        },
+        {
+          "key": "business_hours",
+          "label": "Business Hours",
+          "description": "Operating hours in human-readable format",
+          "type": "string",
+          "required": true,
+          "example": "Monday-Friday 8am-6pm, Saturday 9am-2pm, Sunday Closed",
+          "placeholder": "{{business_hours}}"
+        },
+        {
+          "key": "business_timezone",
+          "label": "Timezone",
+          "description": "Business timezone in IANA format",
+          "type": "string",
+          "required": true,
+          "example": "America/New_York",
+          "placeholder": "{{business_timezone}}"
+        },
+        {
+          "key": "website_url",
+          "label": "Website URL",
+          "description": "Company website address",
+          "type": "url",
+          "required": false,
+          "example": "https://www.acmeplumbing.com",
+          "placeholder": "{{website_url}}"
+        }
+      ]
+    },
+
+    "services": {
+      "label": "Services & Products",
+      "description": "What your business offers",
+      "values": [
+        {
+          "key": "services_list",
+          "label": "Services List",
+          "description": "Comma-separated list of services offered",
+          "type": "string",
+          "required": true,
+          "example": "emergency plumbing, drain cleaning, water heater repair, pipe repair, bathroom remodeling",
+          "placeholder": "{{services_list}}"
+        },
+        {
+          "key": "primary_service",
+          "label": "Primary Service",
+          "description": "Main service or specialty",
+          "type": "string",
+          "required": true,
+          "example": "emergency plumbing",
+          "placeholder": "{{primary_service}}"
+        },
+        {
+          "key": "service_areas",
+          "label": "Service Areas",
+          "description": "Geographic areas you serve",
+          "type": "string",
+          "required": true,
+          "example": "Greater Los Angeles area including Pasadena, Glendale, and Burbank",
+          "placeholder": "{{service_areas}}"
+        },
+        {
+          "key": "price_range",
+          "label": "Price Range",
+          "description": "General pricing information",
+          "type": "string",
+          "required": false,
+          "example": "Service calls start at $99. Free estimates available.",
+          "placeholder": "{{price_range}}"
+        },
+        {
+          "key": "payment_methods",
+          "label": "Payment Methods",
+          "description": "Accepted payment methods",
+          "type": "string",
+          "required": false,
+          "example": "Cash, Credit Cards (Visa, MC, Amex), Check, Financing Available",
+          "placeholder": "{{payment_methods}}"
+        }
+      ]
+    },
+
+    "team": {
+      "label": "Team & Escalation",
+      "description": "Team members and escalation contacts",
+      "values": [
+        {
+          "key": "owner_name",
+          "label": "Owner/Manager Name",
+          "description": "Name of owner or manager",
+          "type": "string",
+          "required": false,
+          "example": "John Smith",
+          "placeholder": "{{owner_name}}"
+        },
+        {
+          "key": "team_size",
+          "label": "Team Size",
+          "description": "Number of employees (for context)",
+          "type": "string",
+          "required": false,
+          "example": "12 licensed plumbers",
+          "placeholder": "{{team_size}}"
+        },
+        {
+          "key": "escalation_contact",
+          "label": "Escalation Contact Name",
+          "description": "Who handles escalated issues",
+          "type": "string",
+          "required": true,
+          "example": "John, the owner",
+          "placeholder": "{{escalation_contact}}"
+        },
+        {
+          "key": "escalation_phone",
+          "label": "Escalation Phone",
+          "description": "Phone number for escalations",
+          "type": "phone",
+          "required": true,
+          "example": "+1 (555) 123-4568",
+          "placeholder": "{{escalation_phone}}"
+        }
+      ]
+    },
+
+    "brand_voice": {
+      "label": "Brand Voice & Personality",
+      "description": "How your AI should communicate",
+      "values": [
+        {
+          "key": "brand_tone",
+          "label": "Brand Tone",
+          "description": "Overall tone of voice",
+          "type": "string",
+          "required": true,
+          "example": "friendly and professional",
+          "options": ["friendly and professional", "professional and formal", "casual and warm", "warm and empathetic", "efficient and direct"],
+          "placeholder": "{{brand_tone}}"
+        },
+        {
+          "key": "greeting_style",
+          "label": "Greeting Style",
+          "description": "How to greet customers",
+          "type": "string",
+          "required": true,
+          "example": "Hi there!",
+          "options": ["Hi there!", "Hello!", "Good morning/afternoon!", "Hey!", "Welcome!"],
+          "placeholder": "{{greeting_style}}"
+        },
+        {
+          "key": "sign_off_style",
+          "label": "Sign-off Style",
+          "description": "How to end conversations",
+          "type": "string",
+          "required": true,
+          "example": "Have a great day!",
+          "options": ["Have a great day!", "Thanks again!", "Take care!", "We appreciate you!", "Looking forward to serving you!"],
+          "placeholder": "{{sign_off_style}}"
+        },
+        {
+          "key": "company_tagline",
+          "label": "Company Tagline",
+          "description": "Optional tagline or slogan",
+          "type": "string",
+          "required": false,
+          "example": "Your Local Plumbing Experts Since 1995",
+          "placeholder": "{{company_tagline}}"
+        }
+      ]
+    },
+
+    "appointments": {
+      "label": "Appointment Settings",
+      "description": "Appointment booking configuration",
+      "values": [
+        {
+          "key": "booking_url",
+          "label": "Booking URL",
+          "description": "Online booking link",
+          "type": "url",
+          "required": true,
+          "example": "https://app.gohighlevel.com/widget/booking/abc123",
+          "placeholder": "{{booking_url}}"
+        },
+        {
+          "key": "appointment_types",
+          "label": "Appointment Types",
+          "description": "Types of appointments offered",
+          "type": "string",
+          "required": true,
+          "example": "Service Call, Free Estimate, Emergency Visit, Consultation",
+          "placeholder": "{{appointment_types}}"
+        },
+        {
+          "key": "appointment_duration",
+          "label": "Default Duration",
+          "description": "Default appointment length",
+          "type": "string",
+          "required": true,
+          "example": "1 hour",
+          "placeholder": "{{appointment_duration}}"
+        },
+        {
+          "key": "cancellation_policy",
+          "label": "Cancellation Policy",
+          "description": "Your cancellation policy text",
+          "type": "string",
+          "required": true,
+          "example": "Please cancel at least 24 hours in advance to avoid a $50 cancellation fee.",
+          "placeholder": "{{cancellation_policy}}"
+        },
+        {
+          "key": "reschedule_notice",
+          "label": "Reschedule Notice Required",
+          "description": "Notice required for rescheduling",
+          "type": "string",
+          "required": false,
+          "example": "24 hours",
+          "placeholder": "{{reschedule_notice}}"
+        },
+        {
+          "key": "primary_calendar",
+          "label": "Primary Calendar ID",
+          "description": "GHL Calendar ID for bookings",
+          "type": "string",
+          "required": true,
+          "example": "calendar_abc123xyz",
+          "placeholder": "{{primary_calendar}}"
+        }
+      ]
+    },
+
+    "reviews": {
+      "label": "Reviews & Reputation",
+      "description": "Review request settings",
+      "values": [
+        {
+          "key": "review_link",
+          "label": "Review Link",
+          "description": "Google/Yelp review link",
+          "type": "url",
+          "required": false,
+          "example": "https://g.page/r/abc123/review",
+          "placeholder": "{{review_link}}"
+        },
+        {
+          "key": "response_time",
+          "label": "Response Time Promise",
+          "description": "Promised response time for escalations",
+          "type": "string",
+          "required": false,
+          "example": "within 2 hours",
+          "placeholder": "{{response_time}}"
+        }
+      ]
+    }
+  },
+
+  "presets": {
+    "plumbing": {
+      "label": "Plumbing Company",
+      "values": {
+        "business_type": "plumbing company",
+        "services_list": "emergency plumbing, drain cleaning, water heater repair, pipe repair, leak detection, bathroom remodeling, sewer line repair",
+        "primary_service": "emergency plumbing",
+        "appointment_types": "Service Call, Free Estimate, Emergency Visit"
+      }
+    },
+    "hvac": {
+      "label": "HVAC Company",
+      "values": {
+        "business_type": "HVAC company",
+        "services_list": "AC repair, heating repair, HVAC installation, duct cleaning, maintenance plans, indoor air quality",
+        "primary_service": "AC repair",
+        "appointment_types": "Service Call, Free Estimate, Maintenance Visit"
+      }
+    },
+    "dental": {
+      "label": "Dental Office",
+      "values": {
+        "business_type": "dental office",
+        "services_list": "cleanings, fillings, crowns, root canals, teeth whitening, orthodontics, emergency dental care",
+        "primary_service": "dental care",
+        "appointment_types": "Cleaning, Consultation, Emergency Visit, Procedure"
+      }
+    },
+    "law_firm": {
+      "label": "Law Firm",
+      "values": {
+        "business_type": "law firm",
+        "services_list": "personal injury, family law, estate planning, business law, criminal defense",
+        "primary_service": "legal services",
+        "appointment_types": "Free Consultation, Case Review, Follow-up Meeting"
+      }
+    },
+    "real_estate": {
+      "label": "Real Estate Agency",
+      "values": {
+        "business_type": "real estate agency",
+        "services_list": "home buying, home selling, property listings, market analysis, buyer representation, seller representation",
+        "primary_service": "real estate services",
+        "appointment_types": "Property Showing, Listing Consultation, Buyer Consultation"
+      }
+    },
+    "medical": {
+      "label": "Medical Practice",
+      "values": {
+        "business_type": "medical practice",
+        "services_list": "primary care, preventive care, chronic disease management, annual physicals, urgent care",
+        "primary_service": "healthcare",
+        "appointment_types": "New Patient Visit, Follow-up, Annual Physical, Urgent Visit"
+      }
+    },
+    "salon": {
+      "label": "Salon/Spa",
+      "values": {
+        "business_type": "salon and spa",
+        "services_list": "haircuts, coloring, styling, manicures, pedicures, facials, massage, waxing",
+        "primary_service": "beauty services",
+        "appointment_types": "Hair Appointment, Nail Appointment, Spa Service"
+      }
+    },
+    "automotive": {
+      "label": "Auto Repair Shop",
+      "values": {
+        "business_type": "auto repair shop",
+        "services_list": "oil changes, brake repair, engine diagnostics, tire services, transmission repair, AC repair",
+        "primary_service": "auto repair",
+        "appointment_types": "Service Appointment, Diagnostic, Estimate"
+      }
+    }
+  }
+}

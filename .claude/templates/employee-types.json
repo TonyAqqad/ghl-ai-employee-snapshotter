@@ -1,0 +1,489 @@
+{
+  "$schema": "employee-types-definition",
+  "version": "1.0",
+  "description": "Definitions of all AI Employee types available for GHL snapshots",
+
+  "employee_types": {
+    "receptionist": {
+      "id": "receptionist",
+      "name": "AI Receptionist",
+      "description": "Handles incoming calls and messages as the first point of contact. Routes inquiries, answers questions, takes messages, and provides basic business information.",
+      "icon": "phone",
+      "channels": {
+        "voice": {
+          "enabled": true,
+          "primary": true,
+          "description": "Answers inbound calls, routes to appropriate departments"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": false,
+          "description": "Responds to incoming text messages"
+        }
+      },
+      "capabilities": [
+        "Answer business information questions",
+        "Route calls/messages to appropriate people",
+        "Take messages when team is unavailable",
+        "Handle after-hours calls",
+        "Initiate appointment booking flow",
+        "Provide directions and hours",
+        "Transfer to human when needed"
+      ],
+      "workflows": [
+        {
+          "name": "Inbound Call Handler",
+          "trigger": "call_incoming",
+          "description": "Routes inbound calls through AI"
+        },
+        {
+          "name": "SMS Inquiry Handler",
+          "trigger": "sms_received",
+          "description": "Handles incoming SMS inquiries"
+        },
+        {
+          "name": "After Hours Handler",
+          "trigger": "call_incoming_after_hours",
+          "description": "Handles calls outside business hours"
+        },
+        {
+          "name": "Voicemail Processor",
+          "trigger": "voicemail_received",
+          "description": "Processes and routes voicemails"
+        }
+      ],
+      "recommended_for": ["all businesses"],
+      "complexity": "basic"
+    },
+
+    "appointment_booker": {
+      "id": "appointment_booker",
+      "name": "AI Appointment Booker",
+      "description": "Specializes in scheduling, rescheduling, and canceling appointments. Sends reminders and handles appointment-related communications.",
+      "icon": "calendar",
+      "channels": {
+        "voice": {
+          "enabled": true,
+          "primary": true,
+          "description": "Books appointments over phone"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": true,
+          "description": "Books appointments and sends reminders via SMS"
+        }
+      },
+      "capabilities": [
+        "Book new appointments",
+        "Reschedule existing appointments",
+        "Cancel appointments",
+        "Send appointment confirmations",
+        "Send appointment reminders",
+        "Handle reminder responses (CONFIRM, RESCHEDULE, CANCEL)",
+        "Check calendar availability"
+      ],
+      "workflows": [
+        {
+          "name": "Appointment Booking Flow",
+          "trigger": "booking_request",
+          "description": "Guides customer through booking process"
+        },
+        {
+          "name": "Appointment Reminder Sequence",
+          "trigger": "appointment_scheduled",
+          "description": "Sends reminders before appointments"
+        },
+        {
+          "name": "Reschedule Handler",
+          "trigger": "reschedule_request",
+          "description": "Handles rescheduling requests"
+        },
+        {
+          "name": "Cancellation Handler",
+          "trigger": "cancel_request",
+          "description": "Handles cancellation requests"
+        }
+      ],
+      "integrations_required": ["calendar"],
+      "recommended_for": ["service businesses", "healthcare", "salons", "consultants"],
+      "complexity": "intermediate"
+    },
+
+    "customer_service": {
+      "id": "customer_service",
+      "name": "AI Customer Service Agent",
+      "description": "Handles customer inquiries, issues, and complaints. Provides support, answers FAQs, and escalates complex issues to humans.",
+      "icon": "headset",
+      "channels": {
+        "voice": {
+          "enabled": true,
+          "primary": false,
+          "description": "Handles customer service calls"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": true,
+          "description": "Primary channel for customer support"
+        }
+      },
+      "capabilities": [
+        "Answer frequently asked questions",
+        "Handle customer complaints with empathy",
+        "Check appointment/order status",
+        "Provide business information",
+        "Escalate issues to appropriate team members",
+        "Track customer sentiment",
+        "Resolve simple issues"
+      ],
+      "workflows": [
+        {
+          "name": "Customer Service Handler",
+          "trigger": "sms_received_from_customer",
+          "description": "Routes customer messages through support AI"
+        },
+        {
+          "name": "Complaint Escalation",
+          "trigger": "complaint_detected",
+          "description": "Escalates complaints to management"
+        },
+        {
+          "name": "Issue Resolution Tracker",
+          "trigger": "issue_reported",
+          "description": "Tracks issue resolution"
+        }
+      ],
+      "recommended_for": ["all businesses with existing customers"],
+      "complexity": "intermediate"
+    },
+
+    "lead_qualifier": {
+      "id": "lead_qualifier",
+      "name": "AI Lead Qualifier",
+      "description": "Engages new leads in conversation to understand their needs, timeline, and budget. Qualifies leads and routes them appropriately.",
+      "icon": "funnel",
+      "channels": {
+        "voice": {
+          "enabled": true,
+          "primary": false,
+          "description": "Qualifies inbound call leads"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": true,
+          "description": "Primary qualification via text conversation"
+        }
+      },
+      "capabilities": [
+        "Engage new leads in discovery conversation",
+        "Ask qualifying questions naturally",
+        "Score leads based on responses",
+        "Route hot leads to sales immediately",
+        "Add warm leads to follow-up pipeline",
+        "Enroll cold leads in nurture sequences",
+        "Capture lead information"
+      ],
+      "workflows": [
+        {
+          "name": "Lead Qualification Flow",
+          "trigger": "contact_created",
+          "description": "Initiates qualification conversation"
+        },
+        {
+          "name": "Hot Lead Handoff",
+          "trigger": "hot_lead_detected",
+          "description": "Routes hot leads to sales team"
+        },
+        {
+          "name": "Lead Scoring Update",
+          "trigger": "qualification_complete",
+          "description": "Updates lead score and pipeline"
+        }
+      ],
+      "integrations_required": ["pipeline"],
+      "recommended_for": ["sales-focused businesses", "service businesses", "consultants"],
+      "complexity": "intermediate"
+    },
+
+    "follow_up_agent": {
+      "id": "follow_up_agent",
+      "name": "AI Follow-up Agent",
+      "description": "Re-engages cold leads and follows up on inquiries that haven't converted. Runs nurture sequences and tracks engagement.",
+      "icon": "repeat",
+      "channels": {
+        "voice": {
+          "enabled": false,
+          "primary": false,
+          "description": "Not typically used for follow-up"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": true,
+          "description": "Follows up via text message"
+        }
+      },
+      "capabilities": [
+        "Send follow-up messages to unresponsive leads",
+        "Re-engage cold leads",
+        "Follow up on quotes/estimates",
+        "Track engagement and responses",
+        "Escalate engaged leads to sales",
+        "Gracefully close uninterested leads"
+      ],
+      "workflows": [
+        {
+          "name": "New Lead Follow-up Sequence",
+          "trigger": "lead_no_response",
+          "description": "Follows up with unresponsive new leads"
+        },
+        {
+          "name": "Quote Follow-up Sequence",
+          "trigger": "quote_sent",
+          "description": "Follows up on pending quotes"
+        },
+        {
+          "name": "Stale Lead Reactivation",
+          "trigger": "lead_inactive",
+          "description": "Re-engages long-inactive leads"
+        }
+      ],
+      "integrations_required": ["pipeline"],
+      "recommended_for": ["sales-focused businesses", "service businesses"],
+      "complexity": "basic"
+    },
+
+    "review_requester": {
+      "id": "review_requester",
+      "name": "AI Review Requester",
+      "description": "Requests reviews from customers after service completion. Handles positive and negative feedback appropriately.",
+      "icon": "star",
+      "channels": {
+        "voice": {
+          "enabled": false,
+          "primary": false,
+          "description": "Not used for review requests"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": true,
+          "description": "Requests reviews via text"
+        }
+      },
+      "capabilities": [
+        "Request reviews after service",
+        "Send review links",
+        "Handle positive feedback gracefully",
+        "Escalate negative feedback (no review request)",
+        "Send follow-up reminders",
+        "Thank customers for reviews"
+      ],
+      "workflows": [
+        {
+          "name": "Review Request Flow",
+          "trigger": "appointment_completed",
+          "description": "Initiates review request after service"
+        },
+        {
+          "name": "Negative Feedback Escalation",
+          "trigger": "negative_feedback_detected",
+          "description": "Escalates unhappy customers"
+        }
+      ],
+      "recommended_for": ["all service businesses"],
+      "complexity": "basic"
+    },
+
+    "payment_reminder": {
+      "id": "payment_reminder",
+      "name": "AI Payment Reminder",
+      "description": "Reminds customers about upcoming or overdue payments. Handles payment-related communications professionally.",
+      "icon": "credit-card",
+      "channels": {
+        "voice": {
+          "enabled": true,
+          "primary": false,
+          "description": "Calls for overdue payments"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": true,
+          "description": "Sends payment reminders"
+        }
+      },
+      "capabilities": [
+        "Send upcoming payment reminders",
+        "Send overdue payment notices",
+        "Offer payment options/plans",
+        "Transfer to billing team when needed",
+        "Track payment status"
+      ],
+      "workflows": [
+        {
+          "name": "Upcoming Payment Reminder",
+          "trigger": "payment_due_soon",
+          "description": "Reminds about upcoming payments"
+        },
+        {
+          "name": "Overdue Payment Sequence",
+          "trigger": "payment_overdue",
+          "description": "Follows up on overdue payments"
+        }
+      ],
+      "recommended_for": ["businesses with recurring billing", "service businesses"],
+      "complexity": "intermediate"
+    },
+
+    "onboarding_agent": {
+      "id": "onboarding_agent",
+      "name": "AI Onboarding Agent",
+      "description": "Welcomes new customers and guides them through the onboarding process. Sends helpful information and checks in.",
+      "icon": "user-plus",
+      "channels": {
+        "voice": {
+          "enabled": false,
+          "primary": false,
+          "description": "Not typically used for onboarding"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": true,
+          "description": "Guides onboarding via text"
+        }
+      },
+      "capabilities": [
+        "Welcome new customers",
+        "Send onboarding information",
+        "Guide through initial setup",
+        "Answer onboarding questions",
+        "Check in after first service",
+        "Introduce additional services"
+      ],
+      "workflows": [
+        {
+          "name": "New Customer Welcome",
+          "trigger": "customer_created",
+          "description": "Welcomes new customers"
+        },
+        {
+          "name": "Onboarding Check-in",
+          "trigger": "first_appointment_complete",
+          "description": "Checks in after first service"
+        }
+      ],
+      "recommended_for": ["subscription businesses", "member-based businesses"],
+      "complexity": "basic"
+    },
+
+    "no_show_recovery": {
+      "id": "no_show_recovery",
+      "name": "AI No-Show Recovery Agent",
+      "description": "Re-engages customers who missed appointments. Attempts to reschedule and understand why they didn't show.",
+      "icon": "calendar-x",
+      "channels": {
+        "voice": {
+          "enabled": true,
+          "primary": false,
+          "description": "Calls no-shows to reschedule"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": true,
+          "description": "Texts no-shows to reschedule"
+        }
+      },
+      "capabilities": [
+        "Reach out to no-shows",
+        "Attempt to reschedule",
+        "Handle emergency situations with empathy",
+        "Track no-show patterns",
+        "Gracefully close if not interested"
+      ],
+      "workflows": [
+        {
+          "name": "No-Show Recovery Flow",
+          "trigger": "appointment_no_show",
+          "description": "Initiates recovery outreach"
+        },
+        {
+          "name": "No-Show Rebooking",
+          "trigger": "no_show_wants_reschedule",
+          "description": "Handles rebooking process"
+        }
+      ],
+      "recommended_for": ["appointment-based businesses"],
+      "complexity": "basic"
+    },
+
+    "estimate_followup": {
+      "id": "estimate_followup",
+      "name": "AI Estimate Follow-up Agent",
+      "description": "Follows up on pending estimates and quotes. Helps convert estimates to booked jobs.",
+      "icon": "file-text",
+      "channels": {
+        "voice": {
+          "enabled": false,
+          "primary": false,
+          "description": "Not typically used"
+        },
+        "sms": {
+          "enabled": true,
+          "primary": true,
+          "description": "Follows up on estimates via text"
+        }
+      },
+      "capabilities": [
+        "Follow up on pending estimates",
+        "Answer questions about estimates",
+        "Address concerns and objections",
+        "Help book jobs from estimates",
+        "Track estimate status"
+      ],
+      "workflows": [
+        {
+          "name": "Estimate Follow-up Sequence",
+          "trigger": "estimate_sent",
+          "description": "Initiates follow-up after estimate"
+        },
+        {
+          "name": "Estimate Conversion",
+          "trigger": "estimate_accepted",
+          "description": "Converts accepted estimates to jobs"
+        }
+      ],
+      "recommended_for": ["contractors", "service businesses with estimates"],
+      "complexity": "basic"
+    }
+  },
+
+  "bundles": {
+    "starter": {
+      "name": "Starter Bundle",
+      "description": "Essential AI employees for any business",
+      "employees": ["receptionist", "appointment_booker"],
+      "recommended_for": "Small businesses getting started with AI"
+    },
+    "service_business": {
+      "name": "Service Business Bundle",
+      "description": "Complete AI team for service businesses",
+      "employees": ["receptionist", "appointment_booker", "lead_qualifier", "review_requester", "no_show_recovery"],
+      "recommended_for": "Plumbers, HVAC, contractors, home services"
+    },
+    "sales_focused": {
+      "name": "Sales-Focused Bundle",
+      "description": "AI employees optimized for lead conversion",
+      "employees": ["receptionist", "lead_qualifier", "follow_up_agent", "appointment_booker"],
+      "recommended_for": "Real estate, insurance, consulting"
+    },
+    "healthcare": {
+      "name": "Healthcare Bundle",
+      "description": "AI employees for medical practices",
+      "employees": ["receptionist", "appointment_booker", "customer_service", "no_show_recovery"],
+      "recommended_for": "Dental offices, medical practices, clinics"
+    },
+    "complete": {
+      "name": "Complete AI Team",
+      "description": "All AI employees for maximum automation",
+      "employees": ["receptionist", "appointment_booker", "customer_service", "lead_qualifier", "follow_up_agent", "review_requester", "no_show_recovery"],
+      "recommended_for": "Businesses wanting full AI automation"
+    }
+  }
+}

@@ -1,0 +1,42 @@
+{
+  "mcpServers": {
+    "brightdata-browser": {
+      "command": "npx",
+      "args": ["@anthropic/mcp-brightdata"],
+      "env": {
+        "BRIGHTDATA_API_KEY": "${BRIGHTDATA_API_KEY}",
+        "BRIGHTDATA_ZONE": "web_unlocker"
+      },
+      "description": "Bright Data Web Browser API for researching GHL documentation"
+    },
+    "playwright": {
+      "command": "npx",
+      "args": ["@playwright/mcp@latest"],
+      "env": {},
+      "description": "Playwright MCP for browser automation and testing"
+    }
+  },
+  "configuration": {
+    "brightdata": {
+      "description": "Bright Data configuration for GHL documentation research",
+      "setup_instructions": [
+        "1. Sign up for Bright Data at https://brightdata.com",
+        "2. Create a Web Unlocker zone",
+        "3. Get your API key from the dashboard",
+        "4. Set BRIGHTDATA_API_KEY environment variable",
+        "5. Or provide the API key when prompted by the orchestrator"
+      ],
+      "usage": {
+        "search": "curl 'https://api.brightdata.com/request' -H 'Authorization: Bearer YOUR_KEY' -d '{\"zone\":\"web_unlocker\",\"url\":\"https://s.jina.ai/?q=YOUR_QUERY\"}'",
+        "fetch": "curl 'https://api.brightdata.com/request' -H 'Authorization: Bearer YOUR_KEY' -d '{\"zone\":\"web_unlocker\",\"url\":\"https://r.jina.ai/TARGET_URL\"}'"
+      },
+      "ghl_documentation_urls": [
+        "https://help.gohighlevel.com/support/solutions",
+        "https://help.gohighlevel.com/support/solutions/folders/conversation-ai",
+        "https://help.gohighlevel.com/support/solutions/folders/voice-ai",
+        "https://help.gohighlevel.com/support/solutions/folders/workflows",
+        "https://help.gohighlevel.com/support/solutions/folders/custom-values"
+      ]
+    }
+  }
+}
