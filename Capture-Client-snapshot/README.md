@@ -2,73 +2,43 @@
 
 Complete AI-powered lead management system for marketing agencies featuring voice agents, SMS automation, and multi-touch workflows.
 
-## Overview
+## IMPORTANT: How This Snapshot Works
 
-The Capture Client AI Employee System is a comprehensive GoHighLevel snapshot that automates your entire lead capture and nurturing process. From the first phone call to closing the deal, this system handles customer interactions with AI-powered voice and SMS agents, backed by intelligent automation workflows.
+This is NOT a traditional GHL snapshot file that can be imported via URL. GHL snapshots are server-side only and cannot be created from external files.
+
+This folder contains **configuration templates** that you use as a reference to manually set up or programmatically create via API. Think of this as a blueprint rather than a ready-to-import package.
+
+### Why Not a Traditional Snapshot?
+
+GoHighLevel snapshots can only be created from within an existing GHL account. They are stored on GHL's servers and shared via snapshot links. External files cannot be converted into importable snapshots - this is a GHL platform limitation, not a choice.
+
+### What This Means for You
+
+You'll need to either:
+1. Manually recreate the configurations in your GHL account following our guides
+2. Use our API scripts to automate the setup process
+3. Once set up, create your own native GHL snapshot for easy replication
+
+The good news: Our detailed guides and automation scripts make this process straightforward, and you'll have complete control over customization.
 
 ## What's Included
 
-### Voice Agents (4)
+### Voice AI Agents (4)
+Configuration templates for AI-powered phone agents:
+- **Receptionist Agent** - Professional phone answering, FAQ handling, lead capture
+- **Lead Qualifier Agent** - Discovery calls, qualification questions, automatic scoring
+- **Demo Booker Agent** - Appointment scheduling, calendar integration, confirmations
+- **After Hours Agent** - Off-hours coverage, message taking, callback scheduling
 
-**Receptionist Agent**
-- Professional phone answering service
-- Handles inquiries and FAQs
-- Captures lead information
-- Routes calls appropriately
-- Schedules callbacks
+### Conversation AI Bots (4)
+SMS automation bot configurations:
+- **SMS Receptionist Bot** - Text inquiry responses, information sharing, lead capture
+- **Lead Nurture Bot** - Follow-up sequences, engagement tracking, hot lead identification
+- **Appointment Bot** - Confirmations, reminders (24hr + 1hr), rescheduling, no-show follow-up
+- **Review Requester Bot** - Review requests, process guidance, feedback handling
 
-**Lead Qualifier Agent**
-- Conducts discovery calls
-- Asks qualification questions
-- Scores leads automatically
-- Routes to appropriate next step
-- Updates CRM data
-
-**Demo Booker Agent**
-- Schedules demo appointments
-- Checks calendar availability
-- Sends confirmations
-- Handles rescheduling
-- Triggers reminder sequences
-
-**After Hours Agent**
-- Handles calls outside business hours
-- Takes messages professionally
-- Schedules next-day callbacks
-- Creates follow-up tasks
-- Sends acknowledgment messages
-
-### SMS Agents (4)
-
-**SMS Receptionist Agent**
-- Responds to text inquiries
-- Answers common questions
-- Provides business information
-- Shares resources and links
-- Captures lead data
-
-**Lead Nurture Agent**
-- Automated follow-up sequences
-- Personalized messaging
-- Shares value content
-- Tracks engagement
-- Identifies hot leads
-
-**Appointment Agent**
-- Sends confirmations
-- Reminder sequences (24hr + 1hr)
-- Handles rescheduling
-- No-show follow-up
-- Post-appointment thank you
-
-**Review Requester Agent**
-- Requests reviews from happy clients
-- Guides through review process
-- Tracks review completion
-- Handles feedback professionally
-- Builds online reputation
-
-### Workflows (14+)
+### Workflow Blueprints (14)
+Complete workflow documentation with step-by-step guides:
 
 **Voice Workflows (5)**:
 - Inbound Call Handler
@@ -90,30 +60,19 @@ The Capture Client AI Employee System is a comprehensive GoHighLevel snapshot th
 - Client Onboarding
 - Re-engagement Sequence
 
-### Additional Components
+### Prompts and Training Content
+- AI agent system prompts
+- Knowledge base content
+- FAQ responses
+- Training scenarios
+- Best practices documentation
 
-**Custom Fields (8)**:
-- Lead Source
-- Lead Score
-- Budget Range
-- Timeline
-- Services Interested
-- Qualification Status
-- Last Call Outcome
-- Next Action Date
-
-**Tags (14)**:
-- New Lead, Qualified, Demo Scheduled, Demo Completed
-- Proposal Sent, Closed Won, Closed Lost
-- Nurture, Hot Lead, Cold Lead
-- Callback Requested, After Hours Contact
-- High Value, VIP Client
-
-**Pipeline**:
-- Complete 9-stage Lead Pipeline
-- Automated stage progression
-- Deal value tracking
-- Win/loss analysis
+### Email Templates
+- Confirmation emails
+- Reminder templates
+- Follow-up sequences
+- Welcome series
+- Proposal templates
 
 ## Who This Is For
 
@@ -136,81 +95,179 @@ This snapshot is perfect for:
 - **Time Savings** - Automate 80% of lead management
 - **Scalability** - Handle unlimited volume without hiring
 
-## Prerequisites
+## How to Use This Snapshot
 
-Before importing this snapshot, ensure you have:
+### Option 1: Manual Setup (Beginner-Friendly)
 
-- GoHighLevel account (Agency Pro or higher recommended)
-- Active phone number with voice capabilities
-- SMS-enabled business number
-- Verified email sending domain
-- At least one calendar configured
-- Basic understanding of GHL workflows
+Follow the step-by-step guides in the `/docs/` folder to recreate everything in the GHL UI:
 
-## Quick Start
+1. **Start here**: Read `docs/GHL-IMPORT-GUIDE.md` for the complete setup guide
+2. **Build workflows**: Follow `docs/WORKFLOW-BUILDER-GUIDE.md` to recreate each workflow
+3. **Configure agents**: Use the agent configuration files in `/agents/` as templates
+4. **Customize**: Replace placeholder values with your business information
 
-### 1. Import Snapshot
+**Time required**: 4-6 hours for complete setup
 
-1. Download the snapshot.json file
-2. Go to GHL Settings > Snapshots
-3. Click "Import Snapshot"
-4. Upload snapshot.json
-5. Select all components to import
-6. Wait for import to complete (5-10 minutes)
+### Option 2: API Setup (Recommended for Developers)
 
-### 2. Update Custom Values
+Use our Node.js scripts to automate the creation of agents via the GHL API:
 
-Replace these placeholder values with your actual business information:
+```bash
+cd scripts
+npm install
+node ghl-api-setup.js
+```
+
+This will:
+- Create all 4 Voice AI agents with pre-configured prompts
+- Create all 4 Conversation AI bots with training content
+- Set up custom fields and tags
+- Configure phone number assignments
+
+**Note**: Workflows must still be created manually through the GHL workflow builder. The API does not support workflow creation.
+
+**Time required**: 30 minutes for API setup + 2-3 hours for workflows
+
+### Option 3: Create Native GHL Snapshot (For Replication)
+
+Once you've successfully set up everything in your GHL account:
+
+1. Go to Settings > Snapshots in GHL
+2. Click "Create Snapshot"
+3. Select all the components you created
+4. Give it a name (e.g., "Capture Client AI System")
+5. Save the snapshot
+
+Now you have a proper GHL snapshot that can be:
+- Shared via URL with team members or clients
+- Imported into other GHL sub-accounts instantly
+- Used as a backup of your configuration
+
+**This is the best approach for agencies serving multiple clients.**
+
+## Folder Structure
+
+```
+Capture-Client-snapshot/
+├── agents/                          # AI agent configurations
+│   ├── voice/                       # Voice AI agent templates
+│   │   ├── receptionist.json
+│   │   ├── lead-qualifier.json
+│   │   ├── demo-booker.json
+│   │   └── after-hours.json
+│   └── conversation/                # SMS bot templates
+│       ├── sms-receptionist.json
+│       ├── lead-nurture.json
+│       ├── appointment.json
+│       └── review-requester.json
+├── workflows/                       # Workflow blueprints
+│   ├── voice/                       # Voice workflow guides
+│   ├── sms/                         # SMS workflow guides
+│   └── email/                       # Email workflow guides
+├── prompts/                         # AI prompts and training
+│   ├── system-prompts/              # Core agent instructions
+│   ├── knowledge-base/              # FAQ and knowledge content
+│   └── training-scenarios/          # Example conversations
+├── templates/                       # Email and SMS templates
+│   ├── email/
+│   └── sms/
+├── scripts/                         # Automation scripts
+│   ├── ghl-api-setup.js            # API setup script
+│   ├── config.js                    # Configuration file
+│   └── package.json
+└── docs/                            # Documentation
+    ├── GHL-IMPORT-GUIDE.md         # Complete manual setup guide
+    ├── WORKFLOW-BUILDER-GUIDE.md   # How to build each workflow
+    ├── API-SETUP-GUIDE.md          # API automation guide
+    ├── CUSTOM-VALUES-GUIDE.md      # Placeholder replacement
+    └── TESTING-CHECKLIST.md        # Testing protocol
+```
+
+## Quick Start Guide
+
+### Prerequisites
+
+Before starting, ensure you have:
+
+- **GoHighLevel account** (Agency Pro or higher recommended)
+- **API access** (Found in Agency Settings > API)
+- **Phone number** with Voice AI enabled (must use Lead Connector, not Twilio direct)
+- **SMS capabilities** on your phone number
+- **Conversation AI** enabled in your account
+- **Node.js** installed (for API setup option)
+
+### Step-by-Step Setup
+
+#### Step 1: Get Your GHL API Credentials
+
+1. Log into your GHL account
+2. Go to Agency Settings > API
+3. Create a new API key with these permissions:
+   - Conversations (read/write)
+   - Contacts (read/write)
+   - Workflows (read)
+   - Calendar (read)
+4. Copy your API key and Location ID
+5. Save them securely (you'll need these for the API script)
+
+#### Step 2: Choose Your Setup Method
+
+**For Manual Setup**:
+- Open `docs/GHL-IMPORT-GUIDE.md`
+- Follow the step-by-step instructions
+- Start with Voice AI agents, then SMS bots, then workflows
+
+**For API Setup**:
+1. Navigate to the `scripts/` folder
+2. Run `npm install`
+3. Edit `config.js` and add your API credentials
+4. Run `node ghl-api-setup.js`
+5. Wait 5-10 minutes for agents to be created
+6. Verify in your GHL account
+7. Follow `docs/WORKFLOW-BUILDER-GUIDE.md` to create workflows manually
+
+#### Step 3: Configure Custom Values
+
+Replace these placeholders throughout your configuration:
 
 - `{{business_name}}` - Your business name
-- `{{business_phone}}` - Your phone number
-- `{{business_email}}` - Your email address
+- `{{business_phone}}` - Your phone number (format: +1234567890)
+- `{{business_email}}` - Your support email
 - `{{business_website}}` - Your website URL
 - `{{business_hours}}` - Your operating hours
-- `{{calendar_link}}` - Your GHL calendar link
-- `{{demo_calendar_link}}` - Your demo calendar link
+- `{{calendar_link}}` - Your GHL calendar booking link
 
-See **docs/custom-values-guide.md** for complete list and instructions.
+See `docs/CUSTOM-VALUES-GUIDE.md` for complete list and instructions.
 
-### 3. Configure Phone System
+#### Step 4: Test Everything
 
-1. Assign your phone number to voice agents
-2. Set up call routing rules (business hours vs after hours)
-3. Configure voicemail
-4. Test each voice agent
+Use the comprehensive testing checklist:
 
-See **docs/setup-guide.md** Section 3 for detailed instructions.
+1. **Test each Voice AI agent**: Make test calls during and after hours
+2. **Test each SMS bot**: Send test messages and verify responses
+3. **Test workflows**: Trigger each workflow with test contacts
+4. **Test integrations**: Verify calendar bookings, email delivery
+5. **Test edge cases**: Voicemail, opt-outs, errors
 
-### 4. Set Up Calendars
+See `docs/TESTING-CHECKLIST.md` for the complete 200+ point checklist.
 
-1. Create/configure booking calendars
-2. Set availability hours
-3. Configure confirmation emails and SMS
-4. Get and test calendar links
+#### Step 5: Create Your GHL Snapshot (Optional)
 
-See **docs/setup-guide.md** Section 4 for detailed instructions.
+Once everything works:
 
-### 5. Test Everything
+1. Go to Settings > Snapshots
+2. Create new snapshot
+3. Select all components
+4. Name it for easy identification
+5. Share with team/clients via snapshot URL
 
-Work through the comprehensive testing checklist:
+#### Step 6: Go Live
 
-- Test all voice agents
-- Test all SMS agents
-- Test all workflows
-- Verify custom values replaced
-- Check calendar bookings
-- Verify email delivery
-
-See **docs/testing-checklist.md** for complete testing protocol.
-
-### 6. Go Live
-
-Once all tests pass:
-
-1. Complete final configuration review
-2. Train your team
+1. Review all configurations one final time
+2. Train your team on the system
 3. Enable all agents and workflows
-4. Monitor closely for first 48 hours
+4. Monitor closely for the first 48 hours
+5. Make adjustments based on real-world performance
 
 ## Documentation
 
@@ -240,32 +297,36 @@ Complete documentation is provided in the `docs/` folder:
 - Integration tests
 - Pre-launch checklist
 
-## Technical Specifications
+## Requirements
 
-### Integrations Required
+### GoHighLevel Account Requirements
 
-- **GHL Phone System** - Voice agent functionality (Required)
-- **GHL Conversations** - SMS automation (Required)
-- **GHL Calendar** - Appointment scheduling (Required)
-- **GHL Email Services** - Email workflows (Required)
-- **Twilio** - Phone/SMS infrastructure (Automatic via GHL)
-- **Google My Business** - Review management (Optional)
+- **Account Type**: Agency Pro or higher (for API access and advanced features)
+- **Voice AI**: Must be enabled on your account
+- **Conversation AI**: Must be enabled for SMS bots
+- **Phone System**: Must use Lead Connector (Twilio direct integration will NOT work with Voice AI)
+- **API Access**: Required for automated setup (found in Agency Settings > API)
 
-### System Requirements
+### Phone Number Requirements
 
-- GoHighLevel subscription: Agency Pro or higher
-- Phone number: With voice and SMS capabilities
-- Email domain: Verified for sending
-- Calendar: At least one configured
-- Storage: Minimal (workflows and templates only)
+- **Voice Capabilities**: Phone number must support inbound/outbound calls
+- **SMS Capabilities**: Phone number must support SMS messaging
+- **Lead Connector**: Number must be provisioned through GHL's Lead Connector
+- **NOT Compatible**: Direct Twilio numbers without Lead Connector integration
+
+### Technical Requirements
+
+- **Email Domain**: Verified domain for email sending
+- **Calendar**: At least one calendar configured in GHL
+- **Node.js**: Version 14+ (only needed for API setup script)
+- **Browser**: Modern browser for manual setup (Chrome, Firefox, Safari, Edge)
 
 ### Compatibility
 
-- Works with all GHL plans (Agency Pro+ recommended)
-- Compatible with SaaS mode
-- Works with white-label branding
+- Works with SaaS mode
+- Compatible with white-label/rebrand
 - Supports multiple sub-accounts
-- No external dependencies
+- No external dependencies beyond GHL platform
 
 ## Use Cases
 
@@ -406,35 +467,53 @@ Track these KPIs to measure success:
 
 ## Frequently Asked Questions
 
+**Q: Why can't I just import a snapshot.json file?**
+A: GHL snapshots can only be created and shared from within GHL's platform. They exist on GHL's servers, not as downloadable files. This is a GHL platform limitation. This package provides templates and automation scripts to recreate the system in your account.
+
 **Q: How long does setup take?**
-A: Initial import is 5-10 minutes. Complete configuration typically takes 2-4 hours including testing.
+A: Manual setup: 4-6 hours. API-assisted setup: 2-3 hours. Once configured, you can create a native GHL snapshot in 5 minutes for instant replication.
 
 **Q: Do I need coding skills?**
-A: No. Everything is point-and-click configuration in GHL. Copy-paste for custom values.
+A: No, not for manual setup. Everything can be done through GHL's UI following our guides. The API script is optional and just runs with `node ghl-api-setup.js`.
 
-**Q: Can I use this for multiple businesses?**
-A: Yes. Each GHL sub-account can have its own instance with different custom values.
+**Q: Can I use this for multiple businesses/clients?**
+A: Yes. Set it up once, create a GHL snapshot, then import that snapshot into unlimited sub-accounts. Perfect for agencies.
 
 **Q: What if I don't have a GHL phone number?**
-A: You'll need to purchase one through GHL. Voice agents require a GHL phone number.
+A: You must purchase a phone number through GHL's Lead Connector. Voice AI does NOT work with direct Twilio numbers.
 
-**Q: Can I customize the agent voices?**
-A: Yes. GHL offers multiple voice options. Choose in voice agent settings.
+**Q: Does this work with Twilio numbers?**
+A: Only if your Twilio number is integrated through GHL's Lead Connector. Direct Twilio integration (bypassing Lead Connector) will NOT work with Voice AI.
 
-**Q: Will this work with my existing GHL setup?**
-A: Yes. The snapshot creates new components. Existing workflows won't be affected.
+**Q: Can I customize the agent voices and personalities?**
+A: Yes. GHL offers multiple voice options (male/female, different accents). Agent personalities can be customized by editing their system prompts.
 
-**Q: How much does this cost?**
-A: The snapshot is included with your purchase. You'll need an active GHL subscription (Agency Pro+ recommended).
+**Q: Will this interfere with my existing GHL setup?**
+A: No. This creates entirely new components. Your existing agents, workflows, and configurations remain untouched.
+
+**Q: What does this cost?**
+A: The templates and scripts are included. You'll need:
+- Active GHL subscription (Agency Pro+ recommended: $297-497/month)
+- Phone number with Voice AI ($0.02/minute for calls)
+- Conversation AI (included with most plans)
 
 **Q: Can I white-label this for clients?**
-A: Yes. Perfect for agency owners serving multiple clients.
+A: Absolutely. Once set up, create a GHL snapshot and deploy to unlimited client accounts. Perfect for agency offerings.
 
-**Q: What about TCPA/compliance?**
-A: The system includes opt-out handling. You're responsible for obtaining proper consent.
+**Q: What about TCPA compliance?**
+A: The system includes opt-out handling, but YOU are responsible for:
+- Obtaining proper consent before contacting leads
+- Maintaining compliant contact lists
+- Following TCPA regulations for your industry
 
-**Q: Can I modify the workflows?**
-A: Absolutely. Customize everything to match your business needs.
+**Q: Can I modify everything?**
+A: Yes. These are templates. Customize agents, workflows, messages, timing - everything to match your business needs.
+
+**Q: Why use the API script vs manual setup?**
+A: The API script creates agents in 5 minutes vs 2 hours manually. But workflows must still be created manually (GHL API limitation). Choose based on your comfort level.
+
+**Q: What if I get stuck?**
+A: Detailed documentation is in the `/docs` folder. Contact support at info@captureclient.net for assistance.
 
 ## Changelog
 
@@ -473,29 +552,60 @@ Capture Client specializes in AI-powered lead generation and management solution
 
 ## Getting Started Checklist
 
-- [ ] Snapshot imported successfully
-- [ ] All custom values updated
-- [ ] Phone system configured
-- [ ] Calendars set up and linked
-- [ ] Voice agents tested
-- [ ] SMS agents tested
-- [ ] Workflows tested
-- [ ] Email sending verified
-- [ ] Team trained on system
-- [ ] Go-live date scheduled
+### Before You Begin
+- [ ] GHL Agency Pro account (or higher)
+- [ ] Voice AI enabled on account
+- [ ] Conversation AI enabled on account
+- [ ] Phone number provisioned through Lead Connector
+- [ ] API credentials obtained (for API setup)
+- [ ] Node.js installed (for API setup)
+
+### Setup Phase
+- [ ] API script run successfully OR manual agent creation completed
+- [ ] All 4 Voice AI agents created and configured
+- [ ] All 4 Conversation AI bots created and configured
+- [ ] All 14 workflows created using builder guides
+- [ ] Custom values replaced throughout system
+- [ ] Phone number assigned to agents
+- [ ] Calendars configured and linked
+
+### Testing Phase
+- [ ] Voice agents tested with real calls
+- [ ] SMS bots tested with real messages
+- [ ] All workflows triggered and verified
+- [ ] Calendar bookings tested
+- [ ] Email delivery verified
+- [ ] Edge cases tested (voicemail, opt-outs, errors)
+
+### Launch Phase
+- [ ] Final configuration review completed
+- [ ] Team trained on system usage
+- [ ] All agents and workflows enabled
+- [ ] Monitoring system set up
+- [ ] (Optional) Native GHL snapshot created for backup/replication
 
 ## Need Help?
 
 If you need assistance with setup, customization, or optimization:
 
-1. Review the documentation in `/docs`
-2. Check the troubleshooting section in setup-guide.md
-3. Contact support: info@captureclient.net
+1. **Documentation**: Review all guides in `/docs` folder
+2. **Troubleshooting**: Check `docs/GHL-IMPORT-GUIDE.md` troubleshooting section
+3. **Support**: Contact info@captureclient.net
+4. **GHL Resources**: Visit help.gohighlevel.com for platform questions
 
 We're here to help you succeed!
 
 ---
 
-**Ready to transform your lead management?**
+## Ready to Get Started?
 
-Start with the [Setup Guide](docs/setup-guide.md) and follow the step-by-step instructions to get your AI Employee System up and running.
+### For Manual Setup:
+Start with [GHL Import Guide](docs/GHL-IMPORT-GUIDE.md) for step-by-step instructions.
+
+### For API Setup:
+1. Navigate to `/scripts` folder
+2. Follow instructions in [API Setup Guide](docs/API-SETUP-GUIDE.md)
+3. Then build workflows using [Workflow Builder Guide](docs/WORKFLOW-BUILDER-GUIDE.md)
+
+### Already Have Everything Set Up?
+Create a native GHL snapshot (Settings > Snapshots > Create) to enable instant deployment to other accounts.

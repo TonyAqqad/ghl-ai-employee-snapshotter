@@ -1,0 +1,30 @@
+{
+  "name": "ghl-ai-agents-setup",
+  "version": "1.0.0",
+  "description": "Automated setup script for creating GoHighLevel Voice AI agents and Conversation AI bots via API",
+  "main": "ghl-api-setup.js",
+  "scripts": {
+    "start": "node ghl-api-setup.js",
+    "setup": "node ghl-api-setup.js",
+    "list": "node ghl-api-setup.js list",
+    "test": "node test-connection.js"
+  },
+  "keywords": [
+    "gohighlevel",
+    "ghl",
+    "voice-ai",
+    "conversation-ai",
+    "automation",
+    "api"
+  ],
+  "author": "Capture Client",
+  "license": "MIT",
+  "dependencies": {
+    "axios": "^1.6.2",
+    "dotenv": "^16.3.1"
+  },
+  "devDependencies": {},
+  "engines": {
+    "node": ">=14.0.0"
+  }
+}
